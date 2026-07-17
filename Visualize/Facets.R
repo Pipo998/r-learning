@@ -19,7 +19,7 @@ ggplot(
   geom_point() +
   facet_wrap(~cyl)
 
-## Facetting plot with combination of two variables, use facet_grid() ----
+## Faceting plot with combination of two variables, use facet_grid() ----
 
 ggplot(
   data = mpg,
@@ -81,4 +81,54 @@ ggplot(
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_grid(. ~ cyl)
 
-# A: 
+# A: See ?facet_grid, '. dot in the formula used to indicate there
+# should be no faceting on this dimension (either row or column)'
+
+# Q4: Faceting vs color aesthetic; Advantages? Larger data set influence?
+ggplot(
+  data = mpg
+) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~cyl, nrow = 2)
+# A: Faceting challenging with large data set; Distinguish characteristics
+# through colors might work better
+
+# Q6: Which plot easier for comparing engine size (displ)?
+ggplot(
+  data = mpg,
+  mapping = aes(x = displ)
+) +
+  geom_histogram() +
+  facet_grid(drv ~.)
+# => best representatiof of engine size, when faceting row-wise
+ggplot(
+  data = mpg,
+  mapping = aes(x = displ)
+) +
+  geom_histogram() +
+  facet_grid(.~ drv)
+# Note: previous plot equivalent to see below
+ggplot(
+  data = mpg,
+  mapping = aes(x = displ)
+) +
+  geom_histogram() +
+  facet_wrap(~drv)
+
+# Q7: Recreating plot using facet_wrap() instead of facet_grid().
+ggplot(
+  data = mpg
+) +
+  geom_point(
+    mapping = aes(x = displ, y = hwy)
+  ) +
+  facet_grid(drv ~ .)
+
+ggplot(
+  data = mpg
+) +
+  geom_point(
+    mapping = aes(x = displ, y = hwy)
+  ) +
+  facet_wrap(~drv, nrow = 3)
+
