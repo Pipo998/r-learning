@@ -5,7 +5,15 @@ Welcome to my R learning repository!
 
 This repository documents my progress while learning R through exercises, notes, and projects.
 
-## Topics
+## Current Book
+
+- R for Data Science
+
+## Completed
+
+- Introduction: "the whole game"
+
+## Topics (to be updated)
 
 - Variables
 - Vectors
