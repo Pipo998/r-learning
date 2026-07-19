@@ -1,0 +1,158 @@
+---
+title: "Statistical Transformation"
+subtitle: "R for Data Science (2e), Chapter 9.5"
+author: "Filip Kukic"
+toc: true
+theme: darkly
+format: html
+---
+
+### Prerequisites
+
+```{r} 
+#| label: load-packages
+#| warning: false
+
+library(tidyverse)
+library(ggthemes)
+
+```
+
+### Diamonds Dataset
+
+The `diamonds` data set contains information on ~54,000 diamonds, including price, carat, color, clarity, and cut of each diamond.
+```{r}
+#| label: dataset
+#| output: false
+
+# ?diamonds
+# str(diamonds)
+diamonds
+glimpse(diamonds)
+
+```
+
+Chart shows, that more diamonds are available with high quality cuts than low quality cuts:
+
+```{r}
+#| label: bar-plot diamond cuts
+
+ggplot(
+  data = diamonds,
+  mapping = aes(x = cut)
+) + 
+  geom_bar()
+```
+
+### What is a stat?
+
+::: {.callout-note}
+On the y-axis, count is displayed - __NOT__ a variable in `diamonds`.
+Many graphs, like scatterplots, plot raw values of dataset. Other graphs, like bar charts, calculate new values to the plot:
+
++ __Bar charts__, __histograms__, __frequency polygons__ bin data and then plot bin counts - i.e. the number of points falling in each bin.
+
++ __Smoothers__ fit a model to data and then plot predictions from the model.
+
++ __Boxplots__ compute the five-number summary of the distribution and then display that summary
+:::
+
+Algorithm used to calculate new values is called __stat__ - i.e. statistical transformation.
+
+
+### How to find out which stat a geom uses?
+
+Inspect default value for `stat` argument with `?geom_`.
+E.g. `geom_bar()` uses `stat_count()` - computes two new variables: _count_ and _prop_.
+
+Every geom has default stat; every stat has default geom.
+
+
+### Why use stat explicitely then?
+
+1. Might want to override default stat, e.g.:
+```{r}
+#| label: Example 1 of overriding default stat
+
+diamonds |> 
+  count(cut) |>
+  ggplot(mapping = aes(x = cut, y = n)) +
+  geom_bar(stat = "identity") # leaves data as is
+```
+
+2. Want to override the default mapping from transformed variables in aesthetics, e.g.:
+```{r}
+#| label: Example 2 of overriding default stat
+
+ggplot(
+  data = diamonds, 
+  mapping = aes(x = cut, y = after_stat(prop), group = 1)) +
+    geom_bar()
+
+
+ggplot(
+  data = diamonds, 
+  mapping = aes(x = cut, y = after_stat(count))) +
+    geom_bar()
+
+```
+
+::: {.callout-note}
+Need to specify group argument, otherwise ggplot computes proportions within each x category, so every bar equals 1. With group = 1, ggplot computes proportions across the entire data set, so the bars represent the fraction of all diamonds in each category.
+:::
+
+3. Want to draw greater attention to statistical transformation in code, e.g.:
+```{r}
+#| label: Example 3 of overriding default stat
+
+ggplot(data = diamonds) +
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.min = min,
+    fun.max = max,
+    fun = median
+  )
+
+```
+
+```{r}
+#| label: Example 3 - Using default geom_ command
+
+diamonds_summary <-
+  diamonds |>
+  summarize(
+    ymin = min(depth),
+    y = median(depth),
+    ymax = max(depth),
+    .by = cut
+  )
+
+ggplot(
+  data = diamonds_summary,
+  mapping = aes(x = cut,
+                y = y,
+                ymin = ymin,
+                ymax = ymax)) +
+  geom_pointrange()
+```
+
+## Miscellaneous
+
+Difference between `geom_bar()` and `geom_col()`:
+```{r}
+#| label: geom_bar() vs. geom_col()
+
+ggplot(diamonds, aes(x = cut)) +
+  geom_bar() # here we use default stat_count()
+
+ggplot(diamonds, mapping = aes(x = cut, y = depth)) + 
+  geom_col() # here geom_bar() stacks the "depth" variable
+
+diamonds |> 
+  summarize(mean_depth = mean(depth, na.rm = TRUE), .by = cut) |>
+  ggplot(mapping = aes(x = cut, y = mean_depth)) + 
+  geom_col() # here we compute the average depth and then plot using geom_col()
+```
+::: {.callout-important}
+__Documentation:__ `geom_bar()` makes the height of the bar proportional to the number of cases in each group. If you want the heights of the bars to represent values in the data, use `geom_col()` instead. `geom_bar()` uses `stat_count()` by default: it counts the number of cases at each x position. `geom_col()` uses `stat_identity()`: it leaves the data as is.
+:::
