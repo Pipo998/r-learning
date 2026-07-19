@@ -1,0 +1,152 @@
+---
+title: "Position adjustment"
+subtitle: "R for Data Science (2e), Chapter 9.6"
+author: "Filip Kukic"
+toc: true
+theme: darkly
+format: html
+---
+
+### Prerequisites
+
+```{r} 
+#| label: load-packages
+#| warning: false
+
+library(tidyverse)
+library(ggthemes)
+
+```
+
+### MPG Dataset
+
+```{r}
+#| label: dataset
+#| output: false
+
+# ?mpg
+# str(mpg)
+mpg
+glimpse(mpg)
+
+```
+
+### Additional visualization tools for bar charts
+
+One can color a bar chart using the `color` or `fill` aesthetic: 
+
+```{r}
+#| label: Example color/fill aesthetic
+
+ggplot(
+  data = mpg, 
+  mapping = aes(x = drv, color = drv)
+) + 
+  geom_bar()
+
+ggplot(
+  data = mpg,
+  mapping = aes(x = drv, fill = drv)
+) + 
+  geom_bar()
+
+```
+
+::: {.callout-note}
+Mapping the fill aesthetic to another variable, like `class` will result in bars automatically being stacked. Each colored rectangle represents a combination of `drv` and `class`.
+:::
+
+```{r}
+#| label: Mapping fill to another variable
+
+ggplot(
+  data = mpg,
+  mapping = aes(x = drv, fill = class)
+) +
+  geom_bar()
+
+```
+
+Stacking is performed using `position` argument (if you look up `?geom_bar`, youl will see that the default is set to `position = "stack"`).
+
+### Other position options
++ `"identity"`: Places each object exactly where it falls in context of the graph - resulting in overlapping
+
+```{r}
+#| label: position - identity
+# Left
+ggplot(
+  data = mpg,
+  mapping = aes(x = drv, fill = class)
+) +
+  geom_bar(position = "identity", alpha = 1/5) # need to specify transparency with alpha or alternatively use fill = NA
+# Right´
+ggplot(
+  data = mpg,
+  mapping = aes(x = drv, color = class)
+) + 
+  geom_bar(fill = NA, position = "identity")
+```
+
++ `"dodge"`: Places overlapping object direclty besides on another
+
+```{r}
+#| label: position - dodge
+
+ggplot(
+  data = mpg, 
+  mapping = aes(x = drv, fill = class)
+) +
+  geom_bar(position = "dodge")
+
+```
+
++ `"jitter"`: Very useful for scatterplots with lots of overlapping (overplotting)
+
+::: {.callout-note}
+ggplot2 has shorthand for `geom_point(position = "jitter"): geom_jitter()``
+:::
+
+```{r}
+#| label: position - jitter
+
+ggplot(
+  data = mpg, 
+  mapping = aes(x = displ, y = hwy)
+) + 
+  geom_point(position = "jitter")
+```
+
+## Miscellaneous
+
+Comparing `geom_jitter` with `geom_count`:
+
+```{r}
+#| label: geom_count()
+
+ggplot(
+  data = mpg, 
+  mapping = aes(x = displ, y = hwy)
+) + 
+  geom_count(position = "jitter")
+
+```
+
+Default position for `geom_boxplot`:
+
+```{r}
+#| label: Default position adjustement for boxplots
+
+# Right
+ggplot(
+  data = mpg,
+  mapping = aes(x = class, y = hwy)) +
+  geom_boxplot()
+
+# Left
+ggplot(data = mpg,
+       mapping = aes(x = class, y = hwy)) +
+  geom_boxplot(position = "dodge2")
+
+```
+
