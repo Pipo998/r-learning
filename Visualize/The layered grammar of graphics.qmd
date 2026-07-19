@@ -1,0 +1,27 @@
+---
+title: "The layered grammar of graphics"
+subtitle: "R for Data Science (2e), Chapter 9.8"
+author: "Filip Kukic"
+toc: true
+theme: darkly
+format: html
+---
+
+### Template
+
+```
+ggplot(data = <DATA>) +
+  <GEOM_FUNCTION>(
+    mapping = aes(<MAPPINGS>),
+    stat = <STAT>,
+    position = <POSITION>
+  ) +
+  <COORDINATE_FUNCTION> +
+  <FACET_FUNCTION>
+```
+  
+::: {.callout-important}
+The seven parameters in the template compose the grammar of graphics, a formal system for building plots. The grammar of graphics is based on the insight that you can uniquely describe any plot as a combination of a dataset, a geom, a set of mappings, a stat, a position adjustment, a coordinate system, a faceting scheme, and a theme.
+:::
+
+Two very useful resources for getting an overview of the complete ggplot2 functionality are the ggplot2 cheatsheet (which can be found at https://posit.co/resources/cheatsheets) and the ggplot2 package website (https://ggplot2.tidyverse.org).
