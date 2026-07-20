@@ -22,17 +22,20 @@ website:
       - section: "Visualization"
         href: visualize.qmd
         contents:
-          - href: Visualize/the-layered-grammar-of-graphics.qmd
-            text: The Layered Grammar of Graphics
-
           - href: Visualize/exploratory-data-analysis.qmd
             text: Exploratory Data Analysis
+          
+          - href: Visualize/facets.qmd
+            text: Facets
 
           - href: Visualize/statistical-transformation.qmd
             text: Statistical Transformation
 
           - href: Visualize/position-adjustment.qmd
             text: Position Adjustment
+
+          - href: Visualize/the-layered-grammar-of-graphics.qmd
+            text: The Layered Grammar of Graphics
 
 format:
   html:
