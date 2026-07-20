@@ -248,8 +248,49 @@ ggplot(
 # Right
 ggplot(
   data = diamonds, 
-  mapping = aes(x = price, y = after_stat(density)) # standardized now, instead of displaying count only, making comparison easier
+  mapping = aes(x = price, y = after_stat(density)) 
+# standardized now, instead of displaying count only, making comparison easier
+# See ?geom_freqploy or ?stat_bin, the underlying mechanism of geom_freqpol()
 ) +
   geom_freqpoly(mapping = aes(color = cut), binwidth = 500, linewidth = 0.75) +   scale_color_colorblind()
+
+# Simpler approach is side-by-side boxplots
+ggplot(
+  data = diamonds,
+  mapping = aes(x = cut, y = price)) +
+    geom_boxplot()
+  
 ```
+
+::: {.callout-tip}
+`cut`is ordered factor, BUT many categorcial variables dont have such intrinsic order, hence reordering is appropriate. Do so by `fct_reorder()`
+:::
+
+```{r}
+#| label: Reordering categorical variables using fct_reorder()
+
+# Example 1
+ggplot(
+  data = diamonds,
+  mapping = aes(x = cut, y = price)
+) + 
+ geom_boxplot(
+   mapping = aes(x = fct_reorder(cut, price, median)))
+
+# Example 2
+ggplot(
+  data = mpg, 
+  mapping = aes(x = fct_reorder(class, hwy, median), y = hwy)
+) +
+  geom_boxplot()
+
+# Example 3: Flipping axis with long names
+ggplot(
+  data = mpg, 
+  mapping = aes(y = fct_reorder(class, hwy, median), x = hwy)
+) +
+  geom_boxplot()
+
+```
+
 
