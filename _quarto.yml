@@ -1,0 +1,40 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "R Learning"
+
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: visualize.qmd
+        text: Visualization
+
+  sidebar:
+    style: docked
+    search: true
+    contents:
+      - href: index.qmd
+        text: Home
+
+      - section: "Visualization"
+        href: visualize.qmd
+        contents:
+          - href: Visualize/the-layered-grammar-of-graphics.qmd
+            text: The Layered Grammar of Graphics
+
+          - href: Visualize/exploratory-data-analysis.qmd
+            text: Exploratory Data Analysis
+
+          - href: Visualize/statistical-transformation.qmd
+            text: Statistical Transformation
+
+          - href: Visualize/position-adjustment.qmd
+            text: Position Adjustment
+
+format:
+  html:
+    theme: cosmo
+    toc: true

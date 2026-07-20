@@ -1,0 +1,255 @@
+---
+title: "Exploratory data analysis - EDA"
+subtitle: "R for Data Science (2e), Chapter 10"
+author: "Filip Kukic"
+toc: true
+theme: darkly
+format: html
+---
+
+## General Steps
+1. Generate questions about the data
+2. Search for answers by visualizing, transforming, and modelling the data
+3. Use learned to refine question and/or generate new question
+
+::: {.callout-note}
+To do data cleaning, you’ll need to deploy all the tools of EDA: visualization, transformation, and modelling.
+:::
+
+## Prerequisites
+```{r} 
+#| label: load-packages
+#| warning: false
+
+library(tidyverse)
+library(ggthemes)
+
+```
+
+__Goal:__ Develope understanding of the data by asking questions.
+
+__Key:__ To ask _quality_ question one must first generate a large _quantity_ of questions
+
+::: {.callout-important}
+Two types of questions will always be useful for making discoveries within the data:
+
+1. What type of variation occurs within my variables?
+
+2. What type of covariation occurs between my variables?
+:::
+
+## Variation
+
+__Variations__ is the tendency of the values of a variable to change from measurement to measurement. Each of measurement will include small amount of error that varies from measurement to measurement. Variables can also vary across different subjects or at different times. Every variable has own pattern of variation. Best way to understand that pattern is to visualize the distribution of the variable's values
+
+### Diamond dataset
+```{r}
+#| label: dataset
+#| output: false
+
+# ?diamonds
+# str(diamonds)
+diamonds
+glimpse(diamonds)
+
+```
+
+Start by visualizing distribution of weights (`carat`) of ~54,000 diamonds from the `diamonds` dataset. `carat`is a numerical vairable, can use histogram:
+
+```{r}
+#| label: Distribution weigth carat of dimaonds
+
+ggplot(
+  data = diamonds,
+  mapping = aes(x = carat)
+) + 
+  geom_histogram(binwidth = 0.5)
+
+```
+
+
+### Typical values
+
+In both, bar charts and histograms, tall bars show common values of a variable, and shorter bars show less-common values. Places with no bar, indicate that these values were not seen in the data. Look for anything unexpected:
+
++ Which values are the most common? Why?
++ Which values are rare? Why? Does this match our expectation?
++ Can we see any unusual pattern? What might explain them?
+
+Distribution of `carat` for smaller diamonds:
+```{r}
+#| label: Distribution - carat for smaller diamonds
+
+smaller <- diamonds |>
+  filter(carat < 3) |>
+  ggplot(mapping = aes(x = carat)) +
+  geom_histogram(binwidth = 0.01)
+
+print(smaller)
+```
+
+Questions:
+
++ Why are there more diamonds at whole carats and common fractions of carats?
++ Why are there more diamonds slightly to the right of each peak than there are slightly to the left of each peak?
+
+Visualizations can also reveal clusters, which suggest existence of subgroups:
+
++ How are the observations within each subgroup similar to each other?
++ How are the observations in separate clusters different from each other?
++ How can you explain or describe the clusters?
++ Why might the appearance of clusters be misleading?
+
+### Unusual values
+Outliers are observations that are unusual; Data points not fitting the pattern. Sometimes just data entry error, sometimes extreme values observed in data collection, sometimes they suggest important new findings
+
+Sometimes, outliers are not easy to spot. E.g. take the distribution of the y variable from the diamonds dataset. The only evidence of outliers is the unusually wide limits on the x-axis.:
+
+```{r}
+#| label: Difficulty of spotting outliers
+
+ggplot(
+  data = diamonds, 
+  mapping = aes(x = y)
+) + 
+  geom_histogram(binwidth = 0.5)
+
+```
+
+Rare bins are very short, making it very difficult to see them. We need to zoom to small values of the y-axis with `coord_cartesian()`:
+
+```{r}
+#| label: Zooming in on small values
+
+ggplot(
+  data = diamonds,
+  mapping = aes(x = y)
+) +
+  geom_histogram(binwidth = 0.5) +
+  coord_cartesian(ylim = c(0, 50))
+```
+::: {.callout-note}
+`coord_cartesian()` also has an `xlim()` argument for when you need to zoom into the x-axis. ggplot2 also has `xlim()` and `ylim()` functions that work slightly differently: they throw away the data outside the limits.
+:::
+
+Can see and filter for the unusual items:
+```{r}
+#| label: Filtering for unusual items
+
+unusual <- diamonds |>
+  filter(y < 3 | y > 20) |>
+  select(price, x, y, z) |>
+  arrange(y)
+
+print(unusual)
+```
+::: {.callout-note}
+The y variable measures one of the three dimensions of these diamonds, in mm. We know that diamonds can’t have a width of 0mm, so these values must be incorrect. By doing EDA, we have discovered missing data that was coded as 0, which we never would have found by simply searching for NAs. Going forward we might choose to re-code these values as NAs in order to prevent misleading calculations. We might also suspect that measurements of 32mm and 59mm are implausible: those diamonds are over an inch long, but don’t cost hundreds of thousands of dollars!
+:::
+
+
+### Unusual values
+
+Two options when encountering unusual values in the dataset:
+
+1. Drop entire row with strange values (not recommended):
+```{r}
+#| label: Dropping unusual values
+
+diamonds2 <- diamonds |> 
+  filter(between(y, 3, 20)) # between() as shortcut for x >= left & <= right; see ?between
+```
+
+::: {.callout-tip}
+_?filter_: These functions are used to subset a data frame, applying the expressions in ... to determine which rows should be kept (for `filter()`) or dropped ( for `filter_out()`).
+:::
+
+2. Replace unusual values with missing values (recommended):
+::: {.callout-note}
+Easiest way is by `mutate()` to replace variable with modified copy.
+Can use `ìf_else()` function to replace values with `NA`:
+:::
+```{r}
+#| label: Replacing values with NA
+
+diamonds2 <- diamonds |>
+  mutate(y = ifelse(y < 3 | y > 20, NA, y))
+
+```
+
+Now, when plotting, ggplot will not include NA's, but will warn!
+
+```{r}
+#| label: Plotting with NA values
+
+ggplot(
+  data = diamonds2,
+  mapping = aes(x = x, y = y)
+) + 
+  geom_point(na.rm = TRUE) # supressing the warning
+
+```
+
+
+### What makes observations with missing values different?
+
+_Example_: `nycflights13::flights`, missing values in the `dep_time` variable indicate that the flight was cancelled. Want to compare scheduled departure times for cancelled and non-cancelled times. Can do this by making new variable, using `ìs.na()` to check if `dep_time`is missing:
+
+```{r}
+#| label: Comparing cancelled vs. non-cancelled flights
+
+cancelled_flights <- nycflights13::flights |>
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100, 
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + (sched_min / 60)
+    )
+
+ggplot(
+  data = cancelled_flights,
+  mapping = aes(x = sched_dep_time)) +
+  geom_freqpoly(aes(color = cancelled), binwidth = 1/4)
+
+
+
+# Alternatively, can facet by cancelled flights, and set scales free
+
+ggplot(
+  data = cancelled_flights,
+  mapping = aes(x = sched_dep_time)
+) +
+  geom_freqpoly(mapping = aes(color = cancelled), binwidth = 1/4) +
+  facet_wrap(~cancelled, scale = "free") +
+  scale_color_colorblind()
+```
+::: {.callout-note}
+geom_freqpoly _{ggplot2}_: Visualise the distribution of a single continuous variable by dividing the x axis into bins and counting the number of observations in each bin. Histograms (geom_histogram()) display the counts with bars; frequency polygons (geom_freqpoly()) display the counts with lines.
+:::
+
+## Covariation
+
+__Variation__ describing behavior _within_ a variable; __Covariation__ describing behavior _between_ variables.
+
+__Covariation__ is the tendency for the values of two or more variables to vary together in a related way. Best way to spot covariation is by visualizing the relationship between two or more variables.
+
+### A categorical & numerical variable
+
+__Example__: Comparing `price` of diamond vs. quality (`cut`) using `geom_freqpoly()`:
+```{r}
+#| label: Example 1 Covariation
+# Left
+ggplot(
+  data = diamonds, 
+  mapping = aes(x = price) 
+) +
+  geom_freqpoly(mapping = aes(color = cut), binwidth = 500, linewidth = 0.75) +   scale_color_colorblind()
+
+# Right
+ggplot(
+  data = diamonds, 
+  mapping = aes(x = price, y = after_stat(density)) # standardized now, instead of displaying count only, making comparison easier
+) +
+  geom_freqpoly(mapping = aes(color = cut), binwidth = 500, linewidth = 0.75) +   scale_color_colorblind()
+```
+

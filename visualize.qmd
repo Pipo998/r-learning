@@ -1,0 +1,17 @@
+---
+title: "Visualizing in R"
+author: "Filip Kukic"
+format: html
+editor: source
+---
+
+# Visualization
+
+This section collects my notes and exercises on data visualization in R.
+
+## Chapters
+
+- [Exploratory Data Analysis](Visualize/exploratory-data-analysis.qmd)
+- [Statistical Transformation](Visualize/statistical-transformation.qmd)
+- [Position Adjustment](Visualize/position-adjustment.qmd)
+- [The Layered Grammar of Graphics](Visualize/the-layered-grammar-of-graphics.qmd)

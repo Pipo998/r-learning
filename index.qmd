@@ -1,0 +1,19 @@
+---
+title: "R learning"
+format: html
+editor: visual
+---
+
+## Welcome
+
+This Website documents my progress learning R.
+
+## Topics
+
+- Data visualization
+
+- Data transformation
+
+- Statistics
+
+- Programming in R
