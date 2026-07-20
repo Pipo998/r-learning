@@ -7,7 +7,7 @@ theme: darkly
 format: html
 ---
 
-## Faceting with `facet_wrap()`
+## Faceting with facet_wrap()
 
 Splitting plots into subplots, each displaying one subset of the data.
 
@@ -48,7 +48,7 @@ ggplot(
 
 ```
 
-### Faceting plot with combination of two variables, use `facet_grid()`
+### Faceting plot with combination of two variables, use facet_grid()
 
 ```{r}
 #| label: facet_grid()- two variables
@@ -68,7 +68,7 @@ ggplot(data = mpg,
   
 ```
 
-#### 9.4.1 Exercise
+### Exercises
 
 #### Q1: What happens if we facet on continuous variable?
 
@@ -85,7 +85,7 @@ ggplot(
 
 A: Creates facet for every unique value of `displ`.
 
-#### Q2: What do empty cells in the plot mean with `facet_grid(drv ~ cyl)`
+#### Q2: What do empty cells in the plot mean with facet_grid(drv ~ cyl)
 
 ```{r}
 #| label: Q2
@@ -125,7 +125,7 @@ ggplot(data = mpg) +
 
 A: Faceting challenging with large data set; Distinguish characteristics through colors might work better.
 
-#### Q6: Which plot easier for comparing engine size (`displ`)?
+#### Q6: Which plot easier for comparing engine size (displ)?
 
 ```{r}
 
@@ -149,7 +149,7 @@ ggplot(data = mpg,
 
 ```
 
-#### Q7: Recreating plot using `facet_wrap()` instead of `facet_grid()`.
+#### Q7: Recreating plot using facet_wrap() instead of facet_grid().
 
 ```{r}
 

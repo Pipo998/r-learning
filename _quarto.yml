@@ -39,5 +39,5 @@ website:
 
 format:
   html:
-    theme: cosmo
+    theme: darkly
     toc: true
