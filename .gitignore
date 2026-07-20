@@ -50,3 +50,9 @@ rsconnect/
 
 /.quarto/
 **/*.quarto_ipynb
+
+# Quarto website output
+_site/
+
+# macOS
+.DS_Store
