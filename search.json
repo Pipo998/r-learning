@@ -1,0 +1,174 @@
+[
+  {
+    "objectID": "visualize.html",
+    "href": "visualize.html",
+    "title": "Visualizing in R",
+    "section": "",
+    "text": "This section collects my notes and exercises on data visualization in R.\n\n\n\nExploratory Data Analysis\nStatistical Transformation\nPosition Adjustment\nThe Layered Grammar of Graphics",
+    "crumbs": [
+      "Home",
+      "Visualization"
+    ]
+  },
+  {
+    "objectID": "visualize.html#chapters",
+    "href": "visualize.html#chapters",
+    "title": "Visualizing in R",
+    "section": "",
+    "text": "Exploratory Data Analysis\nStatistical Transformation\nPosition Adjustment\nThe Layered Grammar of Graphics",
+    "crumbs": [
+      "Home",
+      "Visualization"
+    ]
+  },
+  {
+    "objectID": "Visualize/the-layered-grammar-of-graphics.html",
+    "href": "Visualize/the-layered-grammar-of-graphics.html",
+    "title": "The layered grammar of graphics",
+    "section": "",
+    "text": "Template\nggplot(data = &lt;DATA&gt;) +\n  &lt;GEOM_FUNCTION&gt;(\n    mapping = aes(&lt;MAPPINGS&gt;),\n    stat = &lt;STAT&gt;,\n    position = &lt;POSITION&gt;\n  ) +\n  &lt;COORDINATE_FUNCTION&gt; +\n  &lt;FACET_FUNCTION&gt;\n\n\n\n\n\n\nImportant\n\n\n\nThe seven parameters in the template compose the grammar of graphics, a formal system for building plots. The grammar of graphics is based on the insight that you can uniquely describe any plot as a combination of a dataset, a geom, a set of mappings, a stat, a position adjustment, a coordinate system, a faceting scheme, and a theme.\n\n\nTwo very useful resources for getting an overview of the complete ggplot2 functionality are the ggplot2 cheatsheet (which can be found at https://posit.co/resources/cheatsheets) and the ggplot2 package website (https://ggplot2.tidyverse.org).",
+    "crumbs": [
+      "Home",
+      "Visualization",
+      "The Layered Grammar of Graphics"
+    ]
+  },
+  {
+    "objectID": "Visualize/statistical-transformation.html",
+    "href": "Visualize/statistical-transformation.html",
+    "title": "Statistical Transformation",
+    "section": "",
+    "text": "library(tidyverse)\nlibrary(ggthemes)",
+    "crumbs": [
+      "Home",
+      "Visualization",
+      "Statistical Transformation"
+    ]
+  },
+  {
+    "objectID": "Visualize/statistical-transformation.html#miscellaneous",
+    "href": "Visualize/statistical-transformation.html#miscellaneous",
+    "title": "Statistical Transformation",
+    "section": "Miscellaneous",
+    "text": "Miscellaneous\nDifference between geom_bar() and geom_col():\n\nggplot(diamonds, aes(x = cut)) +\n  geom_bar() # here we use default stat_count()\n\n\n\n\n\n\n\nggplot(diamonds, mapping = aes(x = cut, y = depth)) + \n  geom_col() # here geom_bar() stacks the \"depth\" variable\n\n\n\n\n\n\n\ndiamonds |&gt; \n  summarize(mean_depth = mean(depth, na.rm = TRUE), .by = cut) |&gt;\n  ggplot(mapping = aes(x = cut, y = mean_depth)) + \n  geom_col() # here we compute the average depth and then plot using geom_col()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nImportant\n\n\n\nDocumentation: geom_bar() makes the height of the bar proportional to the number of cases in each group. If you want the heights of the bars to represent values in the data, use geom_col() instead. geom_bar() uses stat_count() by default: it counts the number of cases at each x position. geom_col() uses stat_identity(): it leaves the data as is.",
+    "crumbs": [
+      "Home",
+      "Visualization",
+      "Statistical Transformation"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "R learning",
+    "section": "",
+    "text": "This Website documents my progress learning R.",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#welcome",
+    "href": "index.html#welcome",
+    "title": "R learning",
+    "section": "",
+    "text": "This Website documents my progress learning R.",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#topics",
+    "href": "index.html#topics",
+    "title": "R learning",
+    "section": "Topics",
+    "text": "Topics\n\nData visualization\nData transformation\nStatistics\nProgramming in R",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "Visualize/exploratory-data-analysis.html",
+    "href": "Visualize/exploratory-data-analysis.html",
+    "title": "Exploratory data analysis - EDA",
+    "section": "",
+    "text": "Generate questions about the data\nSearch for answers by visualizing, transforming, and modelling the data\nUse learned to refine question and/or generate new question\n\n\n\n\n\n\n\nNote\n\n\n\nTo do data cleaning, you’ll need to deploy all the tools of EDA: visualization, transformation, and modelling.",
+    "crumbs": [
+      "Home",
+      "Visualization",
+      "Exploratory Data Analysis"
+    ]
+  },
+  {
+    "objectID": "Visualize/exploratory-data-analysis.html#general-steps",
+    "href": "Visualize/exploratory-data-analysis.html#general-steps",
+    "title": "Exploratory data analysis - EDA",
+    "section": "",
+    "text": "Generate questions about the data\nSearch for answers by visualizing, transforming, and modelling the data\nUse learned to refine question and/or generate new question\n\n\n\n\n\n\n\nNote\n\n\n\nTo do data cleaning, you’ll need to deploy all the tools of EDA: visualization, transformation, and modelling.",
+    "crumbs": [
+      "Home",
+      "Visualization",
+      "Exploratory Data Analysis"
+    ]
+  },
+  {
+    "objectID": "Visualize/exploratory-data-analysis.html#prerequisites",
+    "href": "Visualize/exploratory-data-analysis.html#prerequisites",
+    "title": "Exploratory data analysis - EDA",
+    "section": "Prerequisites",
+    "text": "Prerequisites\n\nlibrary(tidyverse)\nlibrary(ggthemes)\n\nGoal: Develope understanding of the data by asking questions.\nKey: To ask quality question one must first generate a large quantity of questions\n\n\n\n\n\n\nImportant\n\n\n\nTwo types of questions will always be useful for making discoveries within the data:\n\nWhat type of variation occurs within my variables?\nWhat type of covariation occurs between my variables?",
+    "crumbs": [
+      "Home",
+      "Visualization",
+      "Exploratory Data Analysis"
+    ]
+  },
+  {
+    "objectID": "Visualize/exploratory-data-analysis.html#variation",
+    "href": "Visualize/exploratory-data-analysis.html#variation",
+    "title": "Exploratory data analysis - EDA",
+    "section": "Variation",
+    "text": "Variation\nVariations is the tendency of the values of a variable to change from measurement to measurement. Each of measurement will include small amount of error that varies from measurement to measurement. Variables can also vary across different subjects or at different times. Every variable has own pattern of variation. Best way to understand that pattern is to visualize the distribution of the variable’s values\n\nDiamond dataset\n\n# ?diamonds\n# str(diamonds)\ndiamonds\nglimpse(diamonds)\n\nStart by visualizing distribution of weights (carat) of ~54,000 diamonds from the diamonds dataset. caratis a numerical vairable, can use histogram:\n\nggplot(\n  data = diamonds,\n  mapping = aes(x = carat)\n) + \n  geom_histogram(binwidth = 0.5)\n\n\n\n\n\n\n\n\n\n\nTypical values\nIn both, bar charts and histograms, tall bars show common values of a variable, and shorter bars show less-common values. Places with no bar, indicate that these values were not seen in the data. Look for anything unexpected:\n\nWhich values are the most common? Why?\nWhich values are rare? Why? Does this match our expectation?\nCan we see any unusual pattern? What might explain them?\n\nDistribution of carat for smaller diamonds:\n\nsmaller &lt;- diamonds |&gt;\n  filter(carat &lt; 3) |&gt;\n  ggplot(mapping = aes(x = carat)) +\n  geom_histogram(binwidth = 0.01)\n\nprint(smaller)\n\n\n\n\n\n\n\n\nQuestions:\n\nWhy are there more diamonds at whole carats and common fractions of carats?\nWhy are there more diamonds slightly to the right of each peak than there are slightly to the left of each peak?\n\nVisualizations can also reveal clusters, which suggest existence of subgroups:\n\nHow are the observations within each subgroup similar to each other?\nHow are the observations in separate clusters different from each other?\nHow can you explain or describe the clusters?\nWhy might the appearance of clusters be misleading?\n\n\n\nUnusual values\nOutliers are observations that are unusual; Data points not fitting the pattern. Sometimes just data entry error, sometimes extreme values observed in data collection, sometimes they suggest important new findings\nSometimes, outliers are not easy to spot. E.g. take the distribution of the y variable from the diamonds dataset. The only evidence of outliers is the unusually wide limits on the x-axis.:\n\nggplot(\n  data = diamonds, \n  mapping = aes(x = y)\n) + \n  geom_histogram(binwidth = 0.5)\n\n\n\n\n\n\n\n\nRare bins are very short, making it very difficult to see them. We need to zoom to small values of the y-axis with coord_cartesian():\n\nggplot(\n  data = diamonds,\n  mapping = aes(x = y)\n) +\n  geom_histogram(binwidth = 0.5) +\n  coord_cartesian(ylim = c(0, 50))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\ncoord_cartesian() also has an xlim() argument for when you need to zoom into the x-axis. ggplot2 also has xlim() and ylim() functions that work slightly differently: they throw away the data outside the limits.\n\n\nCan see and filter for the unusual items:\n\nunusual &lt;- diamonds |&gt;\n  filter(y &lt; 3 | y &gt; 20) |&gt;\n  select(price, x, y, z) |&gt;\n  arrange(y)\n\nprint(unusual)\n\n# A tibble: 9 × 4\n  price     x     y     z\n  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  5139  0      0    0   \n2  6381  0      0    0   \n3 12800  0      0    0   \n4 15686  0      0    0   \n5 18034  0      0    0   \n6  2130  0      0    0   \n7  2130  0      0    0   \n8  2075  5.15  31.8  5.12\n9 12210  8.09  58.9  8.06\n\n\n\n\n\n\n\n\nNote\n\n\n\nThe y variable measures one of the three dimensions of these diamonds, in mm. We know that diamonds can’t have a width of 0mm, so these values must be incorrect. By doing EDA, we have discovered missing data that was coded as 0, which we never would have found by simply searching for NAs. Going forward we might choose to re-code these values as NAs in order to prevent misleading calculations. We might also suspect that measurements of 32mm and 59mm are implausible: those diamonds are over an inch long, but don’t cost hundreds of thousands of dollars!\n\n\n\n\nUnusual values\nTwo options when encountering unusual values in the dataset:\n\nDrop entire row with strange values (not recommended):\n\n\ndiamonds2 &lt;- diamonds |&gt; \n  filter(between(y, 3, 20)) # between() as shortcut for x &gt;= left & &lt;= right; see ?between\n\n\n\n\n\n\n\nTip\n\n\n\n?filter: These functions are used to subset a data frame, applying the expressions in … to determine which rows should be kept (for filter()) or dropped ( for filter_out()).\n\n\n\nReplace unusual values with missing values (recommended): ::: {.callout-note} Easiest way is by mutate() to replace variable with modified copy. Can use ìf_else() function to replace values with NA: :::\n\n\ndiamonds2 &lt;- diamonds |&gt;\n  mutate(y = ifelse(y &lt; 3 | y &gt; 20, NA, y))\n\nNow, when plotting, ggplot will not include NA’s, but will warn!\n\nggplot(\n  data = diamonds2,\n  mapping = aes(x = x, y = y)\n) + \n  geom_point(na.rm = TRUE) # supressing the warning\n\n\n\n\n\n\n\n\n\n\nWhat makes observations with missing values different?\nExample: nycflights13::flights, missing values in the dep_time variable indicate that the flight was cancelled. Want to compare scheduled departure times for cancelled and non-cancelled times. Can do this by making new variable, using ìs.na() to check if dep_timeis missing:\n\ncancelled_flights &lt;- nycflights13::flights |&gt;\n  mutate(\n    cancelled = is.na(dep_time),\n    sched_hour = sched_dep_time %/% 100, \n    sched_min = sched_dep_time %% 100,\n    sched_dep_time = sched_hour + (sched_min / 60)\n    )\n\nggplot(\n  data = cancelled_flights,\n  mapping = aes(x = sched_dep_time)) +\n  geom_freqpoly(aes(color = cancelled), binwidth = 1/4)\n\n\n\n\n\n\n\n# Alternatively, can facet by cancelled flights, and set scales free\n\nggplot(\n  data = cancelled_flights,\n  mapping = aes(x = sched_dep_time)\n) +\n  geom_freqpoly(mapping = aes(color = cancelled), binwidth = 1/4) +\n  facet_wrap(~cancelled, scale = \"free\") +\n  scale_color_colorblind()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\ngeom_freqpoly {ggplot2}: Visualise the distribution of a single continuous variable by dividing the x axis into bins and counting the number of observations in each bin. Histograms (geom_histogram()) display the counts with bars; frequency polygons (geom_freqpoly()) display the counts with lines.",
+    "crumbs": [
+      "Home",
+      "Visualization",
+      "Exploratory Data Analysis"
+    ]
+  },
+  {
+    "objectID": "Visualize/exploratory-data-analysis.html#covariation",
+    "href": "Visualize/exploratory-data-analysis.html#covariation",
+    "title": "Exploratory data analysis - EDA",
+    "section": "Covariation",
+    "text": "Covariation\nVariation describing behavior within a variable; Covariation describing behavior between variables.\nCovariation is the tendency for the values of two or more variables to vary together in a related way. Best way to spot covariation is by visualizing the relationship between two or more variables.\n\nA categorical & numerical variable\nExample: Comparing price of diamond vs. quality (cut) using geom_freqpoly():\n\n# Left\nggplot(\n  data = diamonds, \n  mapping = aes(x = price) \n) +\n  geom_freqpoly(mapping = aes(color = cut), binwidth = 500, linewidth = 0.75) +   scale_color_colorblind()\n\n\n\n\n\n\n\n# Right\nggplot(\n  data = diamonds, \n  mapping = aes(x = price, y = after_stat(density)) # standardized now, instead of displaying count only, making comparison easier\n) +\n  geom_freqpoly(mapping = aes(color = cut), binwidth = 500, linewidth = 0.75) +   scale_color_colorblind()",
+    "crumbs": [
+      "Home",
+      "Visualization",
+      "Exploratory Data Analysis"
+    ]
+  },
+  {
+    "objectID": "Visualize/position-adjustment.html",
+    "href": "Visualize/position-adjustment.html",
+    "title": "Position adjustment",
+    "section": "",
+    "text": "library(tidyverse)\nlibrary(ggthemes)",
+    "crumbs": [
+      "Home",
+      "Visualization",
+      "Position Adjustment"
+    ]
+  },
+  {
+    "objectID": "Visualize/position-adjustment.html#miscellaneous",
+    "href": "Visualize/position-adjustment.html#miscellaneous",
+    "title": "Position adjustment",
+    "section": "Miscellaneous",
+    "text": "Miscellaneous\nComparing geom_jitter with geom_count:\n\nggplot(\n  data = mpg, \n  mapping = aes(x = displ, y = hwy)\n) + \n  geom_count(position = \"jitter\")\n\n\n\n\n\n\n\n\nDefault position for geom_boxplot:\n\n# Right\nggplot(\n  data = mpg,\n  mapping = aes(x = class, y = hwy)) +\n  geom_boxplot()\n\n\n\n\n\n\n\n# Left\nggplot(data = mpg,\n       mapping = aes(x = class, y = hwy)) +\n  geom_boxplot(position = \"dodge2\")",
+    "crumbs": [
+      "Home",
+      "Visualization",
+      "Position Adjustment"
+    ]
+  }
+]
