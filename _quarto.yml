@@ -19,7 +19,7 @@ website:
       - href: index.qmd
         text: Home
 
-      - section: "Visualization"
+      - section: "Data visualization"
         href: visualize.qmd
         contents:
           - href: Visualize/exploratory-data-analysis.qmd

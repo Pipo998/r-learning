@@ -8,16 +8,18 @@ format: html
 ---
 
 ## General Steps
-1. Generate questions about the data
-2. Search for answers by visualizing, transforming, and modelling the data
-3. Use learned to refine question and/or generate new question
 
-::: {.callout-note}
+1.  Generate questions about the data
+2.  Search for answers by visualizing, transforming, and modelling the data
+3.  Use learned to refine question and/or generate new question
+
+::: callout-note
 To do data cleaning, you’ll need to deploy all the tools of EDA: visualization, transformation, and modelling.
 :::
 
 ## Prerequisites
-```{r} 
+
+```{r}
 #| label: load-packages
 #| warning: false
 
@@ -26,23 +28,24 @@ library(ggthemes)
 
 ```
 
-__Goal:__ Develope understanding of the data by asking questions.
+**Goal:** Develope understanding of the data by asking questions.
 
-__Key:__ To ask _quality_ question one must first generate a large _quantity_ of questions
+**Key:** To ask *quality* question one must first generate a large *quantity* of questions
 
-::: {.callout-important}
+::: callout-important
 Two types of questions will always be useful for making discoveries within the data:
 
-1. What type of variation occurs within my variables?
+1.  What type of variation occurs within my variables?
 
-2. What type of covariation occurs between my variables?
+2.  What type of covariation occurs between my variables?
 :::
 
 ## Variation
 
-__Variations__ is the tendency of the values of a variable to change from measurement to measurement. Each of measurement will include small amount of error that varies from measurement to measurement. Variables can also vary across different subjects or at different times. Every variable has own pattern of variation. Best way to understand that pattern is to visualize the distribution of the variable's values
+**Variations** is the tendency of the values of a variable to change from measurement to measurement. Each of measurement will include small amount of error that varies from measurement to measurement. Variables can also vary across different subjects or at different times. Every variable has own pattern of variation. Best way to understand that pattern is to visualize the distribution of the variable's values
 
 ### Diamond dataset
+
 ```{r}
 #| label: dataset
 #| output: false
@@ -54,7 +57,7 @@ glimpse(diamonds)
 
 ```
 
-Start by visualizing distribution of weights (`carat`) of ~54,000 diamonds from the `diamonds` dataset. `carat`is a numerical vairable, can use histogram:
+Start by visualizing distribution of weights (`carat`) of \~54,000 diamonds from the `diamonds` dataset. `carat`is a numerical vairable, can use histogram:
 
 ```{r}
 #| label: Distribution weigth carat of dimaonds
@@ -67,16 +70,16 @@ ggplot(
 
 ```
 
-
 ### Typical values
 
 In both, bar charts and histograms, tall bars show common values of a variable, and shorter bars show less-common values. Places with no bar, indicate that these values were not seen in the data. Look for anything unexpected:
 
-+ Which values are the most common? Why?
-+ Which values are rare? Why? Does this match our expectation?
-+ Can we see any unusual pattern? What might explain them?
+- Which values are the most common? Why?
+- Which values are rare? Why? Does this match our expectation?
+- Can we see any unusual pattern? What might explain them?
 
 Distribution of `carat` for smaller diamonds:
+
 ```{r}
 #| label: Distribution - carat for smaller diamonds
 
@@ -90,17 +93,18 @@ print(smaller)
 
 Questions:
 
-+ Why are there more diamonds at whole carats and common fractions of carats?
-+ Why are there more diamonds slightly to the right of each peak than there are slightly to the left of each peak?
+- Why are there more diamonds at whole carats and common fractions of carats?
+- Why are there more diamonds slightly to the right of each peak than there are slightly to the left of each peak?
 
 Visualizations can also reveal clusters, which suggest existence of subgroups:
 
-+ How are the observations within each subgroup similar to each other?
-+ How are the observations in separate clusters different from each other?
-+ How can you explain or describe the clusters?
-+ Why might the appearance of clusters be misleading?
+- How are the observations within each subgroup similar to each other?
+- How are the observations in separate clusters different from each other?
+- How can you explain or describe the clusters?
+- Why might the appearance of clusters be misleading?
 
 ### Unusual values
+
 Outliers are observations that are unusual; Data points not fitting the pattern. Sometimes just data entry error, sometimes extreme values observed in data collection, sometimes they suggest important new findings
 
 Sometimes, outliers are not easy to spot. E.g. take the distribution of the y variable from the diamonds dataset. The only evidence of outliers is the unusually wide limits on the x-axis.:
@@ -128,11 +132,13 @@ ggplot(
   geom_histogram(binwidth = 0.5) +
   coord_cartesian(ylim = c(0, 50))
 ```
-::: {.callout-note}
+
+::: callout-note
 `coord_cartesian()` also has an `xlim()` argument for when you need to zoom into the x-axis. ggplot2 also has `xlim()` and `ylim()` functions that work slightly differently: they throw away the data outside the limits.
 :::
 
 Can see and filter for the unusual items:
+
 ```{r}
 #| label: Filtering for unusual items
 
@@ -143,16 +149,17 @@ unusual <- diamonds |>
 
 print(unusual)
 ```
-::: {.callout-note}
+
+::: callout-note
 The y variable measures one of the three dimensions of these diamonds, in mm. We know that diamonds can’t have a width of 0mm, so these values must be incorrect. By doing EDA, we have discovered missing data that was coded as 0, which we never would have found by simply searching for NAs. Going forward we might choose to re-code these values as NAs in order to prevent misleading calculations. We might also suspect that measurements of 32mm and 59mm are implausible: those diamonds are over an inch long, but don’t cost hundreds of thousands of dollars!
 :::
-
 
 ### Unusual values
 
 Two options when encountering unusual values in the dataset:
 
-1. Drop entire row with strange values (not recommended):
+1.  Drop entire row with strange values (not recommended):
+
 ```{r}
 #| label: Dropping unusual values
 
@@ -160,15 +167,12 @@ diamonds2 <- diamonds |>
   filter(between(y, 3, 20)) # between() as shortcut for x >= left & <= right; see ?between
 ```
 
-::: {.callout-tip}
-_?filter_: These functions are used to subset a data frame, applying the expressions in ... to determine which rows should be kept (for `filter()`) or dropped ( for `filter_out()`).
+::: callout-tip
+*?filter*: These functions are used to subset a data frame, applying the expressions in ... to determine which rows should be kept (for `filter()`) or dropped ( for `filter_out()`).
 :::
 
-2. Replace unusual values with missing values (recommended):
-::: {.callout-note}
-Easiest way is by `mutate()` to replace variable with modified copy.
-Can use `ìf_else()` function to replace values with `NA`:
-:::
+2.  Replace unusual values with missing values (recommended): ::: {.callout-note} Easiest way is by `mutate()` to replace variable with modified copy. Can use `ìf_else()` function to replace values with `NA`: :::
+
 ```{r}
 #| label: Replacing values with NA
 
@@ -190,10 +194,9 @@ ggplot(
 
 ```
 
-
 ### What makes observations with missing values different?
 
-_Example_: `nycflights13::flights`, missing values in the `dep_time` variable indicate that the flight was cancelled. Want to compare scheduled departure times for cancelled and non-cancelled times. Can do this by making new variable, using `ìs.na()` to check if `dep_time`is missing:
+*Example*: `nycflights13::flights`, missing values in the `dep_time` variable indicate that the flight was cancelled. Want to compare scheduled departure times for cancelled and non-cancelled times. Can do this by making new variable, using `ìs.na()` to check if `dep_time`is missing:
 
 ```{r}
 #| label: Comparing cancelled vs. non-cancelled flights
@@ -222,20 +225,31 @@ ggplot(
   geom_freqpoly(mapping = aes(color = cancelled), binwidth = 1/4) +
   facet_wrap(~cancelled, scale = "free") +
   scale_color_colorblind()
+
+# Or, even better, see upcoming content, use after_stat()
+
+ggplot(
+  data = cancelled_flights,
+  mapping = aes(x = sched_dep_time, y = after_stat(density))
+) +
+  geom_freqpoly(mapping = aes(color = cancelled), binwidth = 1/4)
+
 ```
-::: {.callout-note}
-geom_freqpoly _{ggplot2}_: Visualise the distribution of a single continuous variable by dividing the x axis into bins and counting the number of observations in each bin. Histograms (geom_histogram()) display the counts with bars; frequency polygons (geom_freqpoly()) display the counts with lines.
+
+::: callout-note
+geom_freqpoly *{ggplot2}*: Visualise the distribution of a single continuous variable by dividing the x axis into bins and counting the number of observations in each bin. Histograms (geom_histogram()) display the counts with bars; frequency polygons (geom_freqpoly()) display the counts with lines.
 :::
 
 ## Covariation
 
-__Variation__ describing behavior _within_ a variable; __Covariation__ describing behavior _between_ variables.
+**Variation** describing behavior *within* a variable; **Covariation** describing behavior *between* variables.
 
-__Covariation__ is the tendency for the values of two or more variables to vary together in a related way. Best way to spot covariation is by visualizing the relationship between two or more variables.
+**Covariation** is the tendency for the values of two or more variables to vary together in a related way. Best way to spot covariation is by visualizing the relationship between two or more variables.
 
 ### A categorical & numerical variable
 
-__Example__: Comparing `price` of diamond vs. quality (`cut`) using `geom_freqpoly()`:
+**Example**: Comparing `price` of diamond vs. quality (`cut`) using `geom_freqpoly()`:
+
 ```{r}
 #| label: Example 1 Covariation
 # Left
@@ -262,7 +276,7 @@ ggplot(
   
 ```
 
-::: {.callout-tip}
+::: callout-tip
 `cut`is ordered factor, BUT many categorcial variables dont have such intrinsic order, hence reordering is appropriate. Do so by `fct_reorder()`
 :::
 
@@ -291,6 +305,217 @@ ggplot(
 ) +
   geom_boxplot()
 
+# Example 4: use coord_flip()
+ggplot(
+  data = mpg,
+  mapping = aes(x = fct_reorder(class, hwy, median), y = hwy)
+) + 
+  geom_boxplot() +
+  coord_flip()
+
 ```
 
+### Miscellaneous
+::: {.callout-note}
+One problem with boxplots is that they were developed in an era of much smaller datasets and tend to display a prohibitively large number of “outlying values”. One approach to remedy this problem is the letter value plot.
+:::
+
+```{r}
+#| label: letter value plot
+# Example of lvplot, refer to ?lvplot
+# install.packages("lvplot")
+library(lvplot)
+?lvplot
+
+ggplot(
+  data = diamonds,
+  mapping = aes(x = cut, y = price)
+) + 
+  geom_lv(mapping = aes(fill = after_stat(LV))) +
+  scale_y_sqrt() +
+  theme_bw()
+  
+```
+
+There is also the option to display a relationship via `geom_violin()`.
+
+```{r}
+#| label: Exmaple of geom_violin()
+
+ggplot(
+  data = diamonds,
+  mapping = aes(x = fct_reorder(cut, price, median), y = price)
+) + 
+  geom_violin(quantile.linetype = 1L, quantile.color = "red")
+```
+
+### Two categorical variables
+
+To visualize covariation between two categorical variables, need to count the number of observations forch each combination of levels of these categorical variables.
+
+```{r}
+#| label: Visualizing via geom_count
+
+# One way is via geom_count()
+ggplot(
+  data = diamonds,
+  mapping = aes(x = cut, y = color)
+) + 
+  geom_count()
+```
+
+::: {.callout-note}
+Size of circles display how many observations occurred at each combination of values. Covariation will appear as a strong correlation.
+:::
+
+Another approach:
+```{r}
+#| label: Computing count with dplyr
+
+diamonds |> 
+  count(color, cut) |>
+  ggplot(
+    mapping = aes(x = color, y = cut)
+  ) +
+  geom_tile(
+    mapping = aes(fill = n)
+  )
+
+# Alternatively: Distribution of cut within color
+diamonds |> 
+  count(color, cut) |>
+  mutate(prop = n / sum(n), .by = color) |>
+  ggplot(
+    mapping = aes(x = color, y = cut)
+  ) +
+  geom_tile(
+    mapping = aes(fill = prop)
+  )
+
+# Alternatively: Distribution of color within cut
+diamonds |> 
+  count(color, cut) |>
+  mutate(prop = n / sum(n), .by = cut) |>
+  ggplot(
+    mapping = aes(x = color, y = cut)
+  ) +
+  geom_tile(
+    mapping = aes(fill = prop)
+  )
+
+```
+
+:::{.callout-tip}
+For unordered categorical variables use seriation package, for larger plots use heatmaply package.
+:::
+
+
+### Two numerical variables
+
+Great way to visualize the covariation between two numerical variables: draw a scatterplot with `geom_point()`.
+
+```{r}
+#| label: Example scatterplot
+
+ggplot(
+  data = diamonds,
+  mapping = aes(x = carat, y = price)
+) +
+  geom_point()
+
+# Focusing on bulk of diamonds smaller than 3 carat
+diamonds |> 
+  filter(carat < 3) |>
+  ggplot(
+    mapping = aes(x = carat, y = price)
+  ) + 
+  geom_point()
+
+```
+
+:::{.callout-warning}
+Scatterplots become less useful when dataset grows, as points begin to overplot; can fix problem with `alpha` argument.
+:::
+
+```{r}
+#| label: Example - overplotting scatterplot
+
+smaller <- diamonds |>
+  filter(carat < 3)
+# Inducing transparency
+ggplot(
+  data = smaller,
+  mapping = aes(x = carat, y = price)
+) +
+  geom_point(alpha = 1/100)
+```
+
+Alternatively, can use bins, i.e. `geom_bin2d()` and `geom_hex()`, to bin in two dimensions. Both divide coordinate plane into 2d bins and use fill color to display how many points fall into each bin.
+
++ `geom_bin2d()` creates rectangular bins.
++ `geom_hex()` creates hexagonal bins.
+
+```{r}
+#| label: Example geom_bin2d() and geom_hex()
+#| warning: false
+
+# Install package for geom_hex()
+# install.packages("hexbin")
+
+# Example geom_bin2d()
+ggplot(
+  data = smaller,
+  mapping = aes(x = carat, y = price)
+) + 
+  geom_bin2d()
+
+# Example geom_hex()
+ggplot(
+  data = smaller,
+  mapping = aes(x = carat, y = price)
+) +
+  geom_hex()
+
+```
+
+Alternatively, bin one continuous variable, acting as categorical variable:
+
+```{r}
+#| label: Example - bin continuous variable
+
+ggplot(
+  data = smaller,
+  mapping = aes(x = carat, y = price)
+) + 
+  geom_boxplot(
+    mapping = aes(group = cut_width(carat, 0.1)), varwidth = TRUE
+  )
+
+```
+
+:::{.callout-note}
+`cut_with(x, width)` divides `x` into bins of width `width`.
+`varwidth = TRUE` makes the width of boxplot proportional to number of points.
+:::
+
+### Miscellaneous
+
+Instead summarizing conditional distribution with boxplots, could use frequency polygon:
+
+```{r}
+#| label: Using frequency polygon
+
+ggplot(
+  data = smaller,
+  mapping = aes(x = price, color = cut_number(carat, 6))
+) +
+  geom_freqpoly()
+
+ggplot(
+  data = smaller,
+  mapping = aes(x = price, color = cut_width(carat, 0.2))
+) +
+  geom_freqpoly()
+
+```
 
