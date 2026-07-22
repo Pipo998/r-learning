@@ -1,0 +1,419 @@
+---
+title: "Logical vectors"
+subtitle: "R for Data Science (2e), Chapter 12"
+author: "Filip Kukic"
+toc: true
+theme: darkly
+format: html
+---
+
+## Logical Vectors
+
+### Introduction
+
+Logical vectors can only be: `TRUE`, `FALSE`, `NA`.
+
+Simple way of creating logical vectors $\rightarrow$ numeric comparisons
+
+Two useful functions $\rightarrow$ `ìf_else()` and `case_when()`.
+
+### Prerequisites
+
+:::{.callout-note}
+Most function in chapter provided by base R, but will still load tidyverse to use `filter()` and `mutate()`.
+:::
+
+```{r}
+#| label: Loading packages
+
+library(tidyverse)
+library(nycflights13) # will draw examples from 'flights' dataset
+
+# Or will make up some dummy data
+x <- c(1, 2, 3, 5, 7, 11, 13)
+x * 2
+```
+
+:::{.callout-note}
+Any manipulation to free-floating vector, can be done to variable in dataframe with `mutate()` and friends.
+:::
+
+```{r}
+#| label: Manipulating variables in df via mutate()
+
+df <- tibble(x)
+
+df |>
+  mutate(y = x * 2)
+
+```
+
+
+### Comparison
+
+Creating logical vectors via numeric comparison with: `<`,`<=`,`>`,`>=`,`!=`,`==`.
+
+So far created via `filter()` siletly.
+
+```{r}
+#| label: Example - filter()
+
+# Example - Finding daytime departures arriving on time
+flights |>
+  filter(dep_time > 600 & dep_time < 2000 & abs(arr_delay) < 20)
+
+# Can explicitely create these logical vectors with mutate()
+flights |>
+  mutate(
+    daytime = (dep_time > 600) & (dep_time < 2000),
+    approx_ontime = abs(arr_delay) < 20,
+    .keep = "used"
+  ) |>
+  filter(daytime & approx_ontime)
+```
+
+
+### Floating point comparison
+
+```{r}
+#| label: Example - floating point comparison
+
+x <- c(1 / 49 * 49, sqrt(2) ^ 2)
+x
+
+# Testing for equality results in FALSE:
+x == c(1, 2)
+
+# Reason:
+print(x, digits = 16) # R is rounding these numbers by default!
+
+# Alternatively use dyplr::near() ignoring small differences
+near(x, c(1, 2))
+
+# Base R: 
+all.equal(x, c(1, 2))
+```
+
+
+### Missing values
+
+:::{.callout-warning}
+Almost any operation involving unknown value will be unknow.
+:::
+
+```{r}
+#| label: Example - missing values NAs
+
+NA > 5
+
+10 == NA
+
+NA == NA
+# Why is this last one true?
+# Example: 
+age_mary <- NA
+age_john <- NA
+age_mary == age_john
+
+# Thus following does not work:
+flights |> 
+  filter(dep_time == NA) # yields NA for every single row
+# Solution. is.na()
+```
+
+
+### is.na()
+
+`is.na(x)` works with any type of vector and returns `TRUE` for missing values and `FALSE` for everything else:
+
+```{r}
+#| label: Examples - is.na()
+
+is.na(c(TRUE, NA, FALSE))
+
+is.na(c(1, NA, 3))
+
+is.na(c("a", NA, "b"))
+
+# Can find rows with missing dep_time:
+flights |>
+  filter(is.na(dep_time))
+
+# Useful with arrange(); default: puts NA values at end; can override:
+flights |>
+  filter(month == 1, day == 1) |>
+  arrange(dep_time)
+
+flights |>
+  filter(month == 1, day == 1) |>
+  arrange(desc(is.na(dep_time)), dep_time) # display NA first
+
+flights |>
+  mutate(
+    missing_dep_time = is.na(dep_time),
+    missing_sched_dep_time = is.na(sched_dep_time),
+    missing_dep_delay = is.na(dep_delay),
+    .keep = "all"
+  ) |> 
+  count(
+    missing_dep_time,
+    missing_sched_dep_time, 
+    missing_dep_delay
+    )
+
+```
+
+
+### Boolean algebra
+
+Can combine multiple vectors using Boolean algebra:
+
+`&`"and",`|`"or",`!`"not",`xor()`"exclusive or".
+
+:::{.callout-note}
+`xor()` is true if x is true, or if y is true, but not both.
+:::
+
+#### Missing values
+
+```{r}
+#| label: Example - missing values
+
+df <- tibble(x = c(TRUE, FALSE, NA))
+
+df |>
+  mutate(
+    and = x & NA,
+    or = x | NA
+  )
+```
+
+Missing value in logical vector can be `TRUE` or `FALSE` - we don't know.
++ `NA | TRUE`: Must be `TRUE`(either or is true)
++ `NA | FALSE`: Is `NA` - don't know if `NA` is `TRUE` or `FALSE`.
++ `NA | NA`: is `NA`
+
++ `NA & TRUE`: is `NA`- don't know if `NA` is `TRUE` or `FALSE`
++ `NA & FALSE`: is `FALSE` - at least one condition is `FALSE`
++ `NA & NA`: is `NA`
+
+
+### Order of operations
+
+```{r}
+#| label: Example - order of operations
+
+flights |>
+  filter(month == 11 | month == 12)
+
+# Does NOT work:
+flights |>
+  filter(month == 11 | 12)
+
+# No error, as everything apart from 0 converted to TRUE
+flights |> 
+  mutate(
+    nov = month == 11,
+    final = nov | 12,
+    .keep = "used"
+  )
+```
+
+
+### %in%
+
+Way to avoid `==` and `|` misordering by using `%in%`. `x %in% y` returns logical vector same length as `x` that is `TRUE` whenever a value in `x` si anywhere in `y`.
+
+```{r}
+#| label: Example - %in%
+
+1:12 %in% c(1, 5, 11)
+
+# Example: Finding all flights in November and December
+flights |>
+  filter(month %in% c(11, 12))
+
+# Different rules for NA:
+c(1, 2, NA) == NA # all NA
+
+c(1, 2, NA) %in% NA
+
+# Useful shortcut:
+flights |> 
+  filter(dep_time %in% c(NA, 0800))
+```
+
+
+## Summaries
+
+### Logical summaries
+
+Two main logical summaries: `any()` and `all()`.
+
+`any(x)` is equivalent to `|` $\rightarrow$ returns `TRUE` if there any `TRUE`'s in `x`.
+
+`all(x)` is equivalent to `&` $\rightarrow$ returns `TRUE` if all values of `x` are `TRUE`.
+
+Most summary function include `na.rm = TRUE`.
+
+```{r}
+#| label: Example - all(), any()
+
+flights |>
+  group_by(year, month, day) |>
+  summarize(
+    all_delayed = all(dep_delay <= 60, na.rm = TRUE), 
+    any_long_delay = any(arr_delay >= 300, na.rm = TRUE),
+    .groups = "drop"
+  )
+  
+```
+
+
+### Numeric summaries of logical vectors
+
+Logical vectors is numeric context, `TRUE` becomes 1, `FALSE` becomes 0
+$\rightarrow$ `sum()` and `mean()` useful with logical vectors: 
+
++ `sum(x)`: gives number of `TRUE`s
++ `mean(x)`: gives __proportion__ of `TRUE`s
+
+```{r}
+#| label: Example - sum() and mean() with logical vectors
+
+flights |> 
+  group_by(year, month, day) |>
+  summarize(
+    proportion_delayed = mean(dep_delay <= 60, na.rm = TRUE),
+    count_long_delay = sum(arr_delay >= 300, na.rm = TRUE), 
+    .groups = "drop"
+  )
+```
+
+
+### Logical subsetting
+
+Can use logical vector to filter single variable to a subset of interest:
+
+```{r}
+#| label: Example - logical subsetting
+# Avg. delay of flights, that were actually delayed
+flights |>
+  filter(arr_delay > 0) |>
+  group_by(year, month, day) |>
+  summarize(
+    behind = mean(arr_delay),
+    n = n(),
+    .groups = "drop"
+  )
+
+# How to also compute avg. delay for flights arriving early?
+# Use inline filtering with [
+flights |>
+  group_by(year, month, day) |>
+  summarize(
+    behind = mean(arr_delay[arr_delay > 0], na.rm = TRUE),
+    ahead = mean(arr_delay[arr_delay < 0], na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+# Note: n() now return total number of flights
+```
+
+
+### Conditional transformation
+
+Two important tools: `if_else()` and `case_when()`.
+
+#### if_else()
+
+:::{.callout-note}
+Main advantage to base R's `ìfelse()` is that with `dyplr::if_else()` can choose what happens to missing values, and it's more likely to give meaningful error when variable types not compatible.
+:::
+
+Format: `if_else(condition, true, false, missing)`
+
+```{r}
+#| label: Example - if_else()
+
+x <- c(-3:3, NA)
+if_else(x > 0, "+ve", "-ve")
+
+# How to deal with NA
+if_else(x > 0, "+ve", "-ve", "???")
+
+# can also use vectors for true and false
+if_else(x > 0, -x, x)
+
+# Can also implement simple coalesce() version
+x1 <- c(NA, 1, 2, NA)
+y1 <- c(3, NA, 4, 6)
+if_else(is.na(x1), y1, x1) # replacing NA values
+
+# Can also nest if_else() in if_else()
+if_else(x == 0, "0", if_else(x < 0, "-ve", "+ve"), "?")
+```
+
+:::{.callout-tip}
+With more conditions, switch to `dyplr::case_when()`.
+:::
+
+
+### case_when()
+
+Different computations for different conditions. Syntax: `condition ~ output`.
+`condition` must be a logical vector - when `TRUE`, `output` will be used:
+
+```{r}
+#| label: Example - nested if_else() with case_when()
+
+case_when(
+  x == 0 ~ "0",
+  x > 0 ~ "+ve",
+  x < 0 ~ "-ve",
+  is.na(x) ~ "???"
+)
+
+# Can also specify default for all other values:
+case_when(
+  x < 0 ~ "-ve",
+  x > 0 ~ "+ve",
+  .default = "???"
+)
+
+# Note: if multiple conditions match, only first will be used:
+case_when(
+  x > 0 ~ "+ve",
+  x > 2 ~ "big"
+)
+```
+
+Can also use variables on both sides of `~`; can mix and match variables as needed.
+
+```{r}
+#| label: Example - case_when() and mutate()
+
+flights |>
+  mutate(
+    status = case_when(
+      is.na(arr_delay) ~ "cancelled",
+      arr_delay < -30 ~ "very early",
+      arr_delay < -15 ~ "early",
+      abs(arr_delay) <= 15 ~ "on time",
+      arr_delay < 60 ~ "late",
+      arr_delay < Inf ~ "very late"
+    ),
+    .keep = "used"
+  )
+```
+
+
+### Compatible types
+
+`if_else()` and `case_when()` require __compatible__ types in output:
+
++ Numerical and logical vectors are compatible
++ strings and factors are compatible
++ Dates and date-times are compatible
++ NA is compatible with everything
+

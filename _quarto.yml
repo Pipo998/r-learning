@@ -26,7 +26,7 @@ website:
             text: Exploratory Data Analysis
           
           - href: Visualize/communication.qmd
-          - text: Communication
+            text: Communication
           
           - href: Visualize/facets.qmd
             text: Facets
@@ -39,7 +39,14 @@ website:
 
           - href: Visualize/the-layered-grammar-of-graphics.qmd
             text: The Layered Grammar of Graphics
-
+            
+        
+      - section: "Data transformation"
+        href: transform.qmd
+        contents:
+          - href: Transform/logical-vectors.qmd
+            text: Logical Vectors
+            
 format:
   html:
     theme: darkly

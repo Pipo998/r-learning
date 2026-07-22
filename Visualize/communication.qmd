@@ -1,5 +1,5 @@
 ---
-title: "communication"
+title: "Communication"
 subtitle: "R for Data Science (2e), Chapter 10"
 author: "Filip Kukic"
 toc: true

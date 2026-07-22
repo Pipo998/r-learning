@@ -1,0 +1,14 @@
+---
+title: "Transforming in R"
+author: "Filip Kukic"
+format: html
+editor: source
+---
+
+# Transformation
+
+This section collects my notes and exercises on data transformation in R.
+
+## Chapters
+
+- [Logical Vectors](Transform/logical-vectors.qmd)

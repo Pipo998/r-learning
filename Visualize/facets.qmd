@@ -1,5 +1,5 @@
 ---
-title: "facets"
+title: "Facets"
 subtitle: "R for Data Science (2e), Chapter 9.5"
 author: "Filip Kukic"
 toc: true
