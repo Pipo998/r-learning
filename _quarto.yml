@@ -25,6 +25,9 @@ website:
           - href: Visualize/exploratory-data-analysis.qmd
             text: Exploratory Data Analysis
           
+          - href: Visualize/communication.qmd
+          - text: Communication
+          
           - href: Visualize/facets.qmd
             text: Facets
 
