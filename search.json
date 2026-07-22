@@ -4,7 +4,7 @@
     "href": "visualize.html",
     "title": "Visualizing in R",
     "section": "",
-    "text": "This section collects my notes and exercises on data visualization in R.\n\n\n\nExploratory Data Analysis\nFacets\nStatistical Transformation\nPosition Adjustment\nThe Layered Grammar of Graphics",
+    "text": "This section collects my notes and exercises on data visualization in R.\n\n\n\nExploratory Data Analysis\nCommunication\nFacets\nStatistical Transformation\nPosition Adjustment\nThe Layered Grammar of Graphics",
     "crumbs": [
       "Home",
       "Data visualization"
@@ -15,100 +15,34 @@
     "href": "visualize.html#chapters",
     "title": "Visualizing in R",
     "section": "",
-    "text": "Exploratory Data Analysis\nFacets\nStatistical Transformation\nPosition Adjustment\nThe Layered Grammar of Graphics",
+    "text": "Exploratory Data Analysis\nCommunication\nFacets\nStatistical Transformation\nPosition Adjustment\nThe Layered Grammar of Graphics",
     "crumbs": [
       "Home",
       "Data visualization"
     ]
   },
   {
-    "objectID": "Visualize/the-layered-grammar-of-graphics.html",
-    "href": "Visualize/the-layered-grammar-of-graphics.html",
-    "title": "The layered grammar of graphics",
-    "section": "",
-    "text": "Template\nggplot(data = &lt;DATA&gt;) +\n  &lt;GEOM_FUNCTION&gt;(\n    mapping = aes(&lt;MAPPINGS&gt;),\n    stat = &lt;STAT&gt;,\n    position = &lt;POSITION&gt;\n  ) +\n  &lt;COORDINATE_FUNCTION&gt; +\n  &lt;FACET_FUNCTION&gt;\n\n\n\n\n\n\nImportant\n\n\n\nThe seven parameters in the template compose the grammar of graphics, a formal system for building plots. The grammar of graphics is based on the insight that you can uniquely describe any plot as a combination of a dataset, a geom, a set of mappings, a stat, a position adjustment, a coordinate system, a faceting scheme, and a theme.\n\n\nTwo very useful resources for getting an overview of the complete ggplot2 functionality are the ggplot2 cheatsheet (which can be found at https://posit.co/resources/cheatsheets) and the ggplot2 package website (https://ggplot2.tidyverse.org).",
-    "crumbs": [
-      "Home",
-      "Data visualization",
-      "The Layered Grammar of Graphics"
-    ]
-  },
-  {
-    "objectID": "Visualize/facets.html",
-    "href": "Visualize/facets.html",
-    "title": "facets",
-    "section": "",
-    "text": "Splitting plots into subplots, each displaying one subset of the data.\n\n\n\n\n\n\nNote\n\n\n\nUse categorical variable!\n\n\n\n\n\nlibrary(tidyverse)\nlibrary(ggthemes)\n\n\n\n\n\nmpg\n\n# A tibble: 234 × 11\n   manufacturer model      displ  year   cyl trans drv     cty   hwy fl    class\n   &lt;chr&gt;        &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt; &lt;chr&gt;\n 1 audi         a4           1.8  1999     4 auto… f        18    29 p     comp…\n 2 audi         a4           1.8  1999     4 manu… f        21    29 p     comp…\n 3 audi         a4           2    2008     4 manu… f        20    31 p     comp…\n 4 audi         a4           2    2008     4 auto… f        21    30 p     comp…\n 5 audi         a4           2.8  1999     6 auto… f        16    26 p     comp…\n 6 audi         a4           2.8  1999     6 manu… f        18    26 p     comp…\n 7 audi         a4           3.1  2008     6 auto… f        18    27 p     comp…\n 8 audi         a4 quattro   1.8  1999     4 manu… 4        18    26 p     comp…\n 9 audi         a4 quattro   1.8  1999     4 auto… 4        16    25 p     comp…\n10 audi         a4 quattro   2    2008     4 manu… 4        20    28 p     comp…\n# ℹ 224 more rows\n\nglimpse(mpg)\n\nRows: 234\nColumns: 11\n$ manufacturer &lt;chr&gt; \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"…\n$ model        &lt;chr&gt; \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4 quattro\", \"…\n$ displ        &lt;dbl&gt; 1.8, 1.8, 2.0, 2.0, 2.8, 2.8, 3.1, 1.8, 1.8, 2.0, 2.0, 2.…\n$ year         &lt;int&gt; 1999, 1999, 2008, 2008, 1999, 1999, 2008, 1999, 1999, 200…\n$ cyl          &lt;int&gt; 4, 4, 4, 4, 6, 6, 6, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 8, 8, …\n$ trans        &lt;chr&gt; \"auto(l5)\", \"manual(m5)\", \"manual(m6)\", \"auto(av)\", \"auto…\n$ drv          &lt;chr&gt; \"f\", \"f\", \"f\", \"f\", \"f\", \"f\", \"f\", \"4\", \"4\", \"4\", \"4\", \"4…\n$ cty          &lt;int&gt; 18, 21, 20, 21, 16, 18, 18, 18, 16, 20, 19, 15, 17, 17, 1…\n$ hwy          &lt;int&gt; 29, 29, 31, 30, 26, 26, 27, 26, 25, 28, 27, 25, 25, 25, 2…\n$ fl           &lt;chr&gt; \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p…\n$ class        &lt;chr&gt; \"compact\", \"compact\", \"compact\", \"compact\", \"compact\", \"c…\n\n# ?mpg, to get access to variables used in ds\n# str(mpg), to access structure of object\n\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy) ) + \n  geom_point() + \n  facet_wrap(~cyl)\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(data = mpg,\n       mapping = aes(x = displ, y = hwy)) + \n  geom_point() + \n  facet_grid(drv ~ cyl) # double sided formula: rows ~ cols\n\n\n\n\n\n\n\nggplot(data = mpg, \n       mapping = aes(x = displ, y = hwy) ) + \n  geom_point(mapping = aes(color = class)) + \n  scale_color_colorblind() + # by default, each facet shares same scale\n  # set scales = \"free\", to allow different scales for both axis # other option: \"free_x\", \"free_y\" \n  facet_grid(drv ~ cyl, scales = \"free\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy)) + \n  geom_point() + \n  facet_wrap(~displ)  \n\n\n\n\n\n\n\n\nA: Creates facet for every unique value of displ.\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = drv, y = cyl)) + \n  geom_point() + # compare to: ggplot( data = mpg, mapping = aes(x = displ, y = hwy))\n  geom_point() + facet_grid(drv ~ cyl) # \n\n\n\n\n\n\n\n\nA: No corresponding values for some combinations.\n\n\n\n\nggplot( data = mpg, mapping = aes(x = displ, y = hwy) ) + geom_point() + facet_grid(drv ~ .)\n\n\n\n\n\n\n\nggplot( data = mpg ) + geom_point(mapping = aes(x = displ, y = hwy)) + facet_grid(. ~ cyl)\n\n\n\n\n\n\n\n\nA: See ?facet_grid,‘. dot in the formula used to indicate there should be no faceting on this dimension (either row or column)’\n\n\n\n\n#|label: Q4\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_wrap(~cyl, nrow = 2)\n\n\n\n\n\n\n\n\nA: Faceting challenging with large data set; Distinguish characteristics through colors might work better.\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_grid(drv ~.) # =&gt; best representation of engine size, when faceting rowwise \n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\nggplot(data = mpg,\n       mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_grid(.~ drv)\n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n# Note: previous plot equivalent to see below \nggplot(data = mpg,\n       mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_wrap(~drv)\n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_grid(drv ~ .)\n\n\n\n\n\n\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_wrap(~drv, nrow = 3)",
-    "crumbs": [
-      "Home",
-      "Data visualization",
-      "Facets"
-    ]
-  },
-  {
-    "objectID": "Visualize/facets.html#faceting-with-facet_wrap",
-    "href": "Visualize/facets.html#faceting-with-facet_wrap",
-    "title": "facets",
-    "section": "",
-    "text": "Splitting plots into subplots, each displaying one subset of the data.\n\n\n\n\n\n\nNote\n\n\n\nUse categorical variable!\n\n\n\n\n\nlibrary(tidyverse)\nlibrary(ggthemes)\n\n\n\n\n\nmpg\n\n# A tibble: 234 × 11\n   manufacturer model      displ  year   cyl trans drv     cty   hwy fl    class\n   &lt;chr&gt;        &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt; &lt;chr&gt;\n 1 audi         a4           1.8  1999     4 auto… f        18    29 p     comp…\n 2 audi         a4           1.8  1999     4 manu… f        21    29 p     comp…\n 3 audi         a4           2    2008     4 manu… f        20    31 p     comp…\n 4 audi         a4           2    2008     4 auto… f        21    30 p     comp…\n 5 audi         a4           2.8  1999     6 auto… f        16    26 p     comp…\n 6 audi         a4           2.8  1999     6 manu… f        18    26 p     comp…\n 7 audi         a4           3.1  2008     6 auto… f        18    27 p     comp…\n 8 audi         a4 quattro   1.8  1999     4 manu… 4        18    26 p     comp…\n 9 audi         a4 quattro   1.8  1999     4 auto… 4        16    25 p     comp…\n10 audi         a4 quattro   2    2008     4 manu… 4        20    28 p     comp…\n# ℹ 224 more rows\n\nglimpse(mpg)\n\nRows: 234\nColumns: 11\n$ manufacturer &lt;chr&gt; \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"…\n$ model        &lt;chr&gt; \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4 quattro\", \"…\n$ displ        &lt;dbl&gt; 1.8, 1.8, 2.0, 2.0, 2.8, 2.8, 3.1, 1.8, 1.8, 2.0, 2.0, 2.…\n$ year         &lt;int&gt; 1999, 1999, 2008, 2008, 1999, 1999, 2008, 1999, 1999, 200…\n$ cyl          &lt;int&gt; 4, 4, 4, 4, 6, 6, 6, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 8, 8, …\n$ trans        &lt;chr&gt; \"auto(l5)\", \"manual(m5)\", \"manual(m6)\", \"auto(av)\", \"auto…\n$ drv          &lt;chr&gt; \"f\", \"f\", \"f\", \"f\", \"f\", \"f\", \"f\", \"4\", \"4\", \"4\", \"4\", \"4…\n$ cty          &lt;int&gt; 18, 21, 20, 21, 16, 18, 18, 18, 16, 20, 19, 15, 17, 17, 1…\n$ hwy          &lt;int&gt; 29, 29, 31, 30, 26, 26, 27, 26, 25, 28, 27, 25, 25, 25, 2…\n$ fl           &lt;chr&gt; \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p…\n$ class        &lt;chr&gt; \"compact\", \"compact\", \"compact\", \"compact\", \"compact\", \"c…\n\n# ?mpg, to get access to variables used in ds\n# str(mpg), to access structure of object\n\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy) ) + \n  geom_point() + \n  facet_wrap(~cyl)\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(data = mpg,\n       mapping = aes(x = displ, y = hwy)) + \n  geom_point() + \n  facet_grid(drv ~ cyl) # double sided formula: rows ~ cols\n\n\n\n\n\n\n\nggplot(data = mpg, \n       mapping = aes(x = displ, y = hwy) ) + \n  geom_point(mapping = aes(color = class)) + \n  scale_color_colorblind() + # by default, each facet shares same scale\n  # set scales = \"free\", to allow different scales for both axis # other option: \"free_x\", \"free_y\" \n  facet_grid(drv ~ cyl, scales = \"free\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy)) + \n  geom_point() + \n  facet_wrap(~displ)  \n\n\n\n\n\n\n\n\nA: Creates facet for every unique value of displ.\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = drv, y = cyl)) + \n  geom_point() + # compare to: ggplot( data = mpg, mapping = aes(x = displ, y = hwy))\n  geom_point() + facet_grid(drv ~ cyl) # \n\n\n\n\n\n\n\n\nA: No corresponding values for some combinations.\n\n\n\n\nggplot( data = mpg, mapping = aes(x = displ, y = hwy) ) + geom_point() + facet_grid(drv ~ .)\n\n\n\n\n\n\n\nggplot( data = mpg ) + geom_point(mapping = aes(x = displ, y = hwy)) + facet_grid(. ~ cyl)\n\n\n\n\n\n\n\n\nA: See ?facet_grid,‘. dot in the formula used to indicate there should be no faceting on this dimension (either row or column)’\n\n\n\n\n#|label: Q4\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_wrap(~cyl, nrow = 2)\n\n\n\n\n\n\n\n\nA: Faceting challenging with large data set; Distinguish characteristics through colors might work better.\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_grid(drv ~.) # =&gt; best representation of engine size, when faceting rowwise \n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\nggplot(data = mpg,\n       mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_grid(.~ drv)\n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n# Note: previous plot equivalent to see below \nggplot(data = mpg,\n       mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_wrap(~drv)\n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_grid(drv ~ .)\n\n\n\n\n\n\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_wrap(~drv, nrow = 3)",
-    "crumbs": [
-      "Home",
-      "Data visualization",
-      "Facets"
-    ]
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "R learning",
-    "section": "",
-    "text": "This Website documents my progress learning R.",
-    "crumbs": [
-      "Home"
-    ]
-  },
-  {
-    "objectID": "index.html#welcome",
-    "href": "index.html#welcome",
-    "title": "R learning",
-    "section": "",
-    "text": "This Website documents my progress learning R.",
-    "crumbs": [
-      "Home"
-    ]
-  },
-  {
-    "objectID": "index.html#topics",
-    "href": "index.html#topics",
-    "title": "R learning",
-    "section": "Topics",
-    "text": "Topics\n\nData visualization\nData transformation\nStatistics\nProgramming in R",
-    "crumbs": [
-      "Home"
-    ]
-  },
-  {
-    "objectID": "Visualize/statistical-transformation.html",
-    "href": "Visualize/statistical-transformation.html",
-    "title": "Statistical Transformation",
+    "objectID": "Visualize/position-adjustment.html",
+    "href": "Visualize/position-adjustment.html",
+    "title": "Position adjustment",
     "section": "",
     "text": "library(tidyverse)\nlibrary(ggthemes)",
     "crumbs": [
       "Home",
       "Data visualization",
-      "Statistical Transformation"
+      "Position Adjustment"
     ]
   },
   {
-    "objectID": "Visualize/statistical-transformation.html#miscellaneous",
-    "href": "Visualize/statistical-transformation.html#miscellaneous",
-    "title": "Statistical Transformation",
+    "objectID": "Visualize/position-adjustment.html#miscellaneous",
+    "href": "Visualize/position-adjustment.html#miscellaneous",
+    "title": "Position adjustment",
     "section": "Miscellaneous",
-    "text": "Miscellaneous\nDifference between geom_bar() and geom_col():\n\nggplot(diamonds, aes(x = cut)) +\n  geom_bar() # here we use default stat_count()\n\n\n\n\n\n\n\nggplot(diamonds, mapping = aes(x = cut, y = depth)) + \n  geom_col() # here geom_bar() stacks the \"depth\" variable\n\n\n\n\n\n\n\ndiamonds |&gt; \n  summarize(mean_depth = mean(depth, na.rm = TRUE), .by = cut) |&gt;\n  ggplot(mapping = aes(x = cut, y = mean_depth)) + \n  geom_col() # here we compute the average depth and then plot using geom_col()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nImportant\n\n\n\nDocumentation: geom_bar() makes the height of the bar proportional to the number of cases in each group. If you want the heights of the bars to represent values in the data, use geom_col() instead. geom_bar() uses stat_count() by default: it counts the number of cases at each x position. geom_col() uses stat_identity(): it leaves the data as is.",
+    "text": "Miscellaneous\nComparing geom_jitter with geom_count:\n\nggplot(\n  data = mpg, \n  mapping = aes(x = displ, y = hwy)\n) + \n  geom_count(position = \"jitter\")\n\n\n\n\n\n\n\n\nDefault position for geom_boxplot:\n\n# Right\nggplot(\n  data = mpg,\n  mapping = aes(x = class, y = hwy)) +\n  geom_boxplot()\n\n\n\n\n\n\n\n# Left\nggplot(data = mpg,\n       mapping = aes(x = class, y = hwy)) +\n  geom_boxplot(position = \"dodge2\")",
     "crumbs": [
       "Home",
       "Data visualization",
-      "Statistical Transformation"
+      "Position Adjustment"
     ]
   },
   {
@@ -172,27 +106,141 @@
     ]
   },
   {
-    "objectID": "Visualize/position-adjustment.html",
-    "href": "Visualize/position-adjustment.html",
-    "title": "Position adjustment",
+    "objectID": "Visualize/statistical-transformation.html",
+    "href": "Visualize/statistical-transformation.html",
+    "title": "Statistical Transformation",
     "section": "",
     "text": "library(tidyverse)\nlibrary(ggthemes)",
     "crumbs": [
       "Home",
       "Data visualization",
-      "Position Adjustment"
+      "Statistical Transformation"
     ]
   },
   {
-    "objectID": "Visualize/position-adjustment.html#miscellaneous",
-    "href": "Visualize/position-adjustment.html#miscellaneous",
-    "title": "Position adjustment",
+    "objectID": "Visualize/statistical-transformation.html#miscellaneous",
+    "href": "Visualize/statistical-transformation.html#miscellaneous",
+    "title": "Statistical Transformation",
     "section": "Miscellaneous",
-    "text": "Miscellaneous\nComparing geom_jitter with geom_count:\n\nggplot(\n  data = mpg, \n  mapping = aes(x = displ, y = hwy)\n) + \n  geom_count(position = \"jitter\")\n\n\n\n\n\n\n\n\nDefault position for geom_boxplot:\n\n# Right\nggplot(\n  data = mpg,\n  mapping = aes(x = class, y = hwy)) +\n  geom_boxplot()\n\n\n\n\n\n\n\n# Left\nggplot(data = mpg,\n       mapping = aes(x = class, y = hwy)) +\n  geom_boxplot(position = \"dodge2\")",
+    "text": "Miscellaneous\nDifference between geom_bar() and geom_col():\n\nggplot(diamonds, aes(x = cut)) +\n  geom_bar() # here we use default stat_count()\n\n\n\n\n\n\n\nggplot(diamonds, mapping = aes(x = cut, y = depth)) + \n  geom_col() # here geom_bar() stacks the \"depth\" variable\n\n\n\n\n\n\n\ndiamonds |&gt; \n  summarize(mean_depth = mean(depth, na.rm = TRUE), .by = cut) |&gt;\n  ggplot(mapping = aes(x = cut, y = mean_depth)) + \n  geom_col() # here we compute the average depth and then plot using geom_col()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nImportant\n\n\n\nDocumentation: geom_bar() makes the height of the bar proportional to the number of cases in each group. If you want the heights of the bars to represent values in the data, use geom_col() instead. geom_bar() uses stat_count() by default: it counts the number of cases at each x position. geom_col() uses stat_identity(): it leaves the data as is.",
     "crumbs": [
       "Home",
       "Data visualization",
-      "Position Adjustment"
+      "Statistical Transformation"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "R learning",
+    "section": "",
+    "text": "This Website documents my progress learning R.",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#welcome",
+    "href": "index.html#welcome",
+    "title": "R learning",
+    "section": "",
+    "text": "This Website documents my progress learning R.",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#topics",
+    "href": "index.html#topics",
+    "title": "R learning",
+    "section": "Topics",
+    "text": "Topics\n\nData visualization\nData transformation\nStatistics\nProgramming in R",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "Visualize/facets.html",
+    "href": "Visualize/facets.html",
+    "title": "facets",
+    "section": "",
+    "text": "Splitting plots into subplots, each displaying one subset of the data.\n\n\n\n\n\n\nNote\n\n\n\nUse categorical variable!\n\n\n\n\n\nlibrary(tidyverse)\nlibrary(ggthemes)\n\n\n\n\n\nmpg\n\n# A tibble: 234 × 11\n   manufacturer model      displ  year   cyl trans drv     cty   hwy fl    class\n   &lt;chr&gt;        &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt; &lt;chr&gt;\n 1 audi         a4           1.8  1999     4 auto… f        18    29 p     comp…\n 2 audi         a4           1.8  1999     4 manu… f        21    29 p     comp…\n 3 audi         a4           2    2008     4 manu… f        20    31 p     comp…\n 4 audi         a4           2    2008     4 auto… f        21    30 p     comp…\n 5 audi         a4           2.8  1999     6 auto… f        16    26 p     comp…\n 6 audi         a4           2.8  1999     6 manu… f        18    26 p     comp…\n 7 audi         a4           3.1  2008     6 auto… f        18    27 p     comp…\n 8 audi         a4 quattro   1.8  1999     4 manu… 4        18    26 p     comp…\n 9 audi         a4 quattro   1.8  1999     4 auto… 4        16    25 p     comp…\n10 audi         a4 quattro   2    2008     4 manu… 4        20    28 p     comp…\n# ℹ 224 more rows\n\nglimpse(mpg)\n\nRows: 234\nColumns: 11\n$ manufacturer &lt;chr&gt; \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"…\n$ model        &lt;chr&gt; \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4 quattro\", \"…\n$ displ        &lt;dbl&gt; 1.8, 1.8, 2.0, 2.0, 2.8, 2.8, 3.1, 1.8, 1.8, 2.0, 2.0, 2.…\n$ year         &lt;int&gt; 1999, 1999, 2008, 2008, 1999, 1999, 2008, 1999, 1999, 200…\n$ cyl          &lt;int&gt; 4, 4, 4, 4, 6, 6, 6, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 8, 8, …\n$ trans        &lt;chr&gt; \"auto(l5)\", \"manual(m5)\", \"manual(m6)\", \"auto(av)\", \"auto…\n$ drv          &lt;chr&gt; \"f\", \"f\", \"f\", \"f\", \"f\", \"f\", \"f\", \"4\", \"4\", \"4\", \"4\", \"4…\n$ cty          &lt;int&gt; 18, 21, 20, 21, 16, 18, 18, 18, 16, 20, 19, 15, 17, 17, 1…\n$ hwy          &lt;int&gt; 29, 29, 31, 30, 26, 26, 27, 26, 25, 28, 27, 25, 25, 25, 2…\n$ fl           &lt;chr&gt; \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p…\n$ class        &lt;chr&gt; \"compact\", \"compact\", \"compact\", \"compact\", \"compact\", \"c…\n\n# ?mpg, to get access to variables used in ds\n# str(mpg), to access structure of object\n\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy) ) + \n  geom_point() + \n  facet_wrap(~cyl)\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(data = mpg,\n       mapping = aes(x = displ, y = hwy)) + \n  geom_point() + \n  facet_grid(drv ~ cyl) # double sided formula: rows ~ cols\n\n\n\n\n\n\n\nggplot(data = mpg, \n       mapping = aes(x = displ, y = hwy) ) + \n  geom_point(mapping = aes(color = class)) + \n  scale_color_colorblind() + # by default, each facet shares same scale\n  # set scales = \"free\", to allow different scales for both axis # other option: \"free_x\", \"free_y\" \n  facet_grid(drv ~ cyl, scales = \"free\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy)) + \n  geom_point() + \n  facet_wrap(~displ)  \n\n\n\n\n\n\n\n\nA: Creates facet for every unique value of displ.\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = drv, y = cyl)) + \n  geom_point() + # compare to: ggplot( data = mpg, mapping = aes(x = displ, y = hwy))\n  geom_point() + facet_grid(drv ~ cyl) # \n\n\n\n\n\n\n\n\nA: No corresponding values for some combinations.\n\n\n\n\nggplot( data = mpg, mapping = aes(x = displ, y = hwy) ) + geom_point() + facet_grid(drv ~ .)\n\n\n\n\n\n\n\nggplot( data = mpg ) + geom_point(mapping = aes(x = displ, y = hwy)) + facet_grid(. ~ cyl)\n\n\n\n\n\n\n\n\nA: See ?facet_grid,‘. dot in the formula used to indicate there should be no faceting on this dimension (either row or column)’\n\n\n\n\n#|label: Q4\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_wrap(~cyl, nrow = 2)\n\n\n\n\n\n\n\n\nA: Faceting challenging with large data set; Distinguish characteristics through colors might work better.\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_grid(drv ~.) # =&gt; best representation of engine size, when faceting rowwise \n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\nggplot(data = mpg,\n       mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_grid(.~ drv)\n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n# Note: previous plot equivalent to see below \nggplot(data = mpg,\n       mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_wrap(~drv)\n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_grid(drv ~ .)\n\n\n\n\n\n\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_wrap(~drv, nrow = 3)",
+    "crumbs": [
+      "Home",
+      "Data visualization",
+      "Facets"
+    ]
+  },
+  {
+    "objectID": "Visualize/facets.html#faceting-with-facet_wrap",
+    "href": "Visualize/facets.html#faceting-with-facet_wrap",
+    "title": "facets",
+    "section": "",
+    "text": "Splitting plots into subplots, each displaying one subset of the data.\n\n\n\n\n\n\nNote\n\n\n\nUse categorical variable!\n\n\n\n\n\nlibrary(tidyverse)\nlibrary(ggthemes)\n\n\n\n\n\nmpg\n\n# A tibble: 234 × 11\n   manufacturer model      displ  year   cyl trans drv     cty   hwy fl    class\n   &lt;chr&gt;        &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt; &lt;chr&gt;\n 1 audi         a4           1.8  1999     4 auto… f        18    29 p     comp…\n 2 audi         a4           1.8  1999     4 manu… f        21    29 p     comp…\n 3 audi         a4           2    2008     4 manu… f        20    31 p     comp…\n 4 audi         a4           2    2008     4 auto… f        21    30 p     comp…\n 5 audi         a4           2.8  1999     6 auto… f        16    26 p     comp…\n 6 audi         a4           2.8  1999     6 manu… f        18    26 p     comp…\n 7 audi         a4           3.1  2008     6 auto… f        18    27 p     comp…\n 8 audi         a4 quattro   1.8  1999     4 manu… 4        18    26 p     comp…\n 9 audi         a4 quattro   1.8  1999     4 auto… 4        16    25 p     comp…\n10 audi         a4 quattro   2    2008     4 manu… 4        20    28 p     comp…\n# ℹ 224 more rows\n\nglimpse(mpg)\n\nRows: 234\nColumns: 11\n$ manufacturer &lt;chr&gt; \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"audi\", \"…\n$ model        &lt;chr&gt; \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4\", \"a4 quattro\", \"…\n$ displ        &lt;dbl&gt; 1.8, 1.8, 2.0, 2.0, 2.8, 2.8, 3.1, 1.8, 1.8, 2.0, 2.0, 2.…\n$ year         &lt;int&gt; 1999, 1999, 2008, 2008, 1999, 1999, 2008, 1999, 1999, 200…\n$ cyl          &lt;int&gt; 4, 4, 4, 4, 6, 6, 6, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 8, 8, …\n$ trans        &lt;chr&gt; \"auto(l5)\", \"manual(m5)\", \"manual(m6)\", \"auto(av)\", \"auto…\n$ drv          &lt;chr&gt; \"f\", \"f\", \"f\", \"f\", \"f\", \"f\", \"f\", \"4\", \"4\", \"4\", \"4\", \"4…\n$ cty          &lt;int&gt; 18, 21, 20, 21, 16, 18, 18, 18, 16, 20, 19, 15, 17, 17, 1…\n$ hwy          &lt;int&gt; 29, 29, 31, 30, 26, 26, 27, 26, 25, 28, 27, 25, 25, 25, 2…\n$ fl           &lt;chr&gt; \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p\", \"p…\n$ class        &lt;chr&gt; \"compact\", \"compact\", \"compact\", \"compact\", \"compact\", \"c…\n\n# ?mpg, to get access to variables used in ds\n# str(mpg), to access structure of object\n\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy) ) + \n  geom_point() + \n  facet_wrap(~cyl)\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(data = mpg,\n       mapping = aes(x = displ, y = hwy)) + \n  geom_point() + \n  facet_grid(drv ~ cyl) # double sided formula: rows ~ cols\n\n\n\n\n\n\n\nggplot(data = mpg, \n       mapping = aes(x = displ, y = hwy) ) + \n  geom_point(mapping = aes(color = class)) + \n  scale_color_colorblind() + # by default, each facet shares same scale\n  # set scales = \"free\", to allow different scales for both axis # other option: \"free_x\", \"free_y\" \n  facet_grid(drv ~ cyl, scales = \"free\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy)) + \n  geom_point() + \n  facet_wrap(~displ)  \n\n\n\n\n\n\n\n\nA: Creates facet for every unique value of displ.\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = drv, y = cyl)) + \n  geom_point() + # compare to: ggplot( data = mpg, mapping = aes(x = displ, y = hwy))\n  geom_point() + facet_grid(drv ~ cyl) # \n\n\n\n\n\n\n\n\nA: No corresponding values for some combinations.\n\n\n\n\nggplot( data = mpg, mapping = aes(x = displ, y = hwy) ) + geom_point() + facet_grid(drv ~ .)\n\n\n\n\n\n\n\nggplot( data = mpg ) + geom_point(mapping = aes(x = displ, y = hwy)) + facet_grid(. ~ cyl)\n\n\n\n\n\n\n\n\nA: See ?facet_grid,‘. dot in the formula used to indicate there should be no faceting on this dimension (either row or column)’\n\n\n\n\n#|label: Q4\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_wrap(~cyl, nrow = 2)\n\n\n\n\n\n\n\n\nA: Faceting challenging with large data set; Distinguish characteristics through colors might work better.\n\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_grid(drv ~.) # =&gt; best representation of engine size, when faceting rowwise \n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\nggplot(data = mpg,\n       mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_grid(.~ drv)\n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n# Note: previous plot equivalent to see below \nggplot(data = mpg,\n       mapping = aes(x = displ) ) + \n  geom_histogram() + \n  facet_wrap(~drv)\n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n\n\n\n\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_grid(drv ~ .)\n\n\n\n\n\n\n\nggplot(data = mpg) + \n  geom_point(mapping = aes(x = displ, y = hwy)) + \n  facet_wrap(~drv, nrow = 3)",
+    "crumbs": [
+      "Home",
+      "Data visualization",
+      "Facets"
+    ]
+  },
+  {
+    "objectID": "Visualize/the-layered-grammar-of-graphics.html",
+    "href": "Visualize/the-layered-grammar-of-graphics.html",
+    "title": "The layered grammar of graphics",
+    "section": "",
+    "text": "Template\nggplot(data = &lt;DATA&gt;) +\n  &lt;GEOM_FUNCTION&gt;(\n    mapping = aes(&lt;MAPPINGS&gt;),\n    stat = &lt;STAT&gt;,\n    position = &lt;POSITION&gt;\n  ) +\n  &lt;COORDINATE_FUNCTION&gt; +\n  &lt;FACET_FUNCTION&gt;\n\n\n\n\n\n\nImportant\n\n\n\nThe seven parameters in the template compose the grammar of graphics, a formal system for building plots. The grammar of graphics is based on the insight that you can uniquely describe any plot as a combination of a dataset, a geom, a set of mappings, a stat, a position adjustment, a coordinate system, a faceting scheme, and a theme.\n\n\nTwo very useful resources for getting an overview of the complete ggplot2 functionality are the ggplot2 cheatsheet (which can be found at https://posit.co/resources/cheatsheets) and the ggplot2 package website (https://ggplot2.tidyverse.org).",
+    "crumbs": [
+      "Home",
+      "Data visualization",
+      "The Layered Grammar of Graphics"
+    ]
+  },
+  {
+    "objectID": "Visualize/communication.html",
+    "href": "Visualize/communication.html",
+    "title": "communication",
+    "section": "",
+    "text": "Goal: Communicating understandings to others\n\\(\\rightarrow\\) make plots as self-explanatory as possible",
+    "crumbs": [
+      "Home",
+      "Data visualization",
+      "communication"
+    ]
+  },
+  {
+    "objectID": "Visualize/communication.html#scales",
+    "href": "Visualize/communication.html#scales",
+    "title": "communication",
+    "section": "Scales",
+    "text": "Scales\nScales control how aesthetic mappings will be displayed\n\nDefault scales\nggplot2 automatically adds scales:\n\nggplot(\n  data = mpg, \n  mapping = aes(x = displ, y = hwy)\n) +\n  geom_point(\n    mapping = aes(color = class)\n  )\n\n\n\n\n\n\n\n# Behind the scenes\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy)\n) + \n  geom_point(\n    mapping = aes(color = class)\n  ) +\n  scale_x_continuous() + # puts values of displ on continuous line on x-axis\n  scale_y_continuous() +\n  scale_color_discrete() # chooses colors for each of the class of car\n\n\n\n\n\n\n\n\nScales are named according to type of variable:\n\ncontinuous\ndiscrete\ndatetime\ndate\n\nReasons to override defaults:\n\nchanging paramters of default scale, allowing e.g. to change breaks on axes, or key labels on the legend\nreplacing scales, and using different algorithm\n\n\n\nAxis ticks and legend keys\nAxis and legends are calles guides. Axis are used for x/y aesthetics; legends for everything else.\nTwo arguments affecting appearance of ticks on axis and keys on legend: breaks and labels:\n\nbreak: controls position of ticks; - values associated with keys\nlabels: controls text labels\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy, color = drv)\n) + \n  geom_point() +\n  scale_y_continuous(breaks = seq(from = 15, to = 40, by = 5))\n\n\n\n\n\n\n\n\nCan use labels same way, or set NULL to suppress. For discrete scales for categorical variables, labels can be named list of existing level names and desired labels for them:\n\n# Example: Rescaling and relabeling x-axis\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy)\n) + \n  geom_point() +\n  scale_x_continuous(\n    breaks = seq(from = 2, to = 7, length.out = 3),\n    labels = c(\"A\", \"B\", \"C\"))\n\n\n\n\n\n\n\n# Example: labels = NULL\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy, color = drv)\n) + \n  geom_point() +\n  scale_x_continuous(labels = NULL) +\n  scale_y_continuous(labels = NULL) +\n  scale_color_discrete(labels = c(\n    \"4\" = \"4-wheel\",\n    \"f\" = \"front\",\n    \"r\" = \"rear\"\n  ))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nlabels coupled with labelling functions from scales package useful for formatting numbers as currency, percent, etc.\n\n\n\n# Left\nggplot(\n  data = diamonds,\n  mapping = aes(x = price, y = cut)\n) +\n  geom_boxplot(alpha = 0.05) +\n  scale_x_continuous(labels = label_dollar())\n\n\n\n\n\n\n\n# Right\nggplot(\n  data = diamonds,\n  mapping = aes(x = price, y = cut)\n) +\n  geom_boxplot(alpha = 0.05) + \n  scale_x_continuous(\n    labels = label_dollar(scale = 1/1000, # divide dollar values by 1000\n                          suffix = \"K\"), # add suffix\n    breaks = seq(from = 1000, to = 19000, by = 6000) # add custom breaks\n  )\n\n\n\n\n\n\n\n\nAnother label function is label_percent():\n\nggplot(\n  data = diamonds,\n  mapping = aes(x = cut, fill = clarity)\n) +\n   geom_bar(position = \"fill\") + # position = \"fill\" return proportions at every x-position; most useful for geoms anchored to x-axis, like geom_bar()\n   scale_y_continuous(\n    labels = label_percent(),\n    name = \"Percentage\"\n   )\n\n\n\n\n\n\n\n\nAnother use of breaks when having few data points, wanting to highlight where observations occur:\n\n# Presidential dataset\nglimpse(presidential)\n\nRows: 12\nColumns: 4\n$ name  &lt;chr&gt; \"Eisenhower\", \"Kennedy\", \"Johnson\", \"Nixon\", \"Ford\", \"Carter\", \"…\n$ start &lt;date&gt; 1953-01-20, 1961-01-20, 1963-11-22, 1969-01-20, 1974-08-09, 197…\n$ end   &lt;date&gt; 1961-01-20, 1963-11-22, 1969-01-20, 1974-08-09, 1977-01-20, 198…\n$ party &lt;chr&gt; \"Republican\", \"Democratic\", \"Democratic\", \"Republican\", \"Republi…\n\npresidential |&gt;\n  mutate(id = 33 + row_number()) |&gt; # add id corresponding to number of pres.\n  ggplot(\n    mapping = aes(x = start, y = id)\n  ) +\n  geom_point() +\n  geom_segment(\n    mapping = aes(xend = end, yend = id)\n  ) +\n  scale_x_date(name = NULL,\n               breaks = presidential$start,\n               date_labels = \"'%y\"\n  )\n\n\n\n\n\n\n\n\n\n\nLegend layout\nControls overall position of the legend using theme() setting - they control non-data parts of the plot. Theme setting legend.position controls where the legend is drawn:\n\nbase &lt;- ggplot(\n  data = mpg, \n  mapping = aes(x = displ, y = hwy)\n) + \n  geom_point(\n    mapping = aes(color = class)\n  )\n\nbase + theme(legend.position = \"right\") # default\n\n\n\n\n\n\n\nbase + theme(legend.position = \"left\")\n\n\n\n\n\n\n\nbase +\n  theme(legend.position = \"top\") +\n  guides(color = guide_legend(nrow = 3))\n\n\n\n\n\n\n\nbase +\n  theme(legend.position = \"bottom\") +\n  guides(color = guide_legend(nrow = 3))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nguides() along with guides_legend() or guide_colorbar() controls the display of individual legends. nrowcontrols number of rows the legend uses; override.aes overrides one of the aesthetics, e.g., making points bigger. Useful when used a low alphato display many points on a plot.\n\n\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy)\n) + \n  geom_point(\n    mapping = aes(color = class)\n  ) + \n  geom_smooth(se = FALSE) +\n  theme(legend.position = \"bottom\") +\n  guides(color = guide_legend(nrow = 3, override.aes = list(size= 4)))\n\n`geom_smooth()` using method = 'loess' and formula = 'y ~ x'\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nArgument in guides() matches name of aesthetic, just like in labs().\n\n\n\n\nReplacing a scale\nTwo types of scales likely to switch out: continuous position scales and color scales.\n\n# Example - log transforming to better see relationship\n# Left\nggplot(\n  data = diamonds,\n  mapping = aes(x = carat, y = price)\n) + \n  geom_bin2d()\n\n`stat_bin2d()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n# Right\n# Note: scales are labelled with transformed values\nggplot(\n  data = diamonds,\n  mapping = aes(x = log10(carat), y = log10(price))\n) + \n  geom_bin2d()\n\n`stat_bin2d()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n# Instead doing transformation in aesthetic mapping, transform with scales\n# Note: Scales are labelled with original values\nggplot(\n  data = diamonds,\n  mapping = aes(x = carat, y = price)\n) + \n  geom_bin2d() +\n  scale_x_log10() +\n  scale_y_log10()\n\n`stat_bin2d()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n\nAnother scale frequently customized is color. Default categorical scale picks colors that are evenly spaced around the color wheel.\nUseful alternative: ColorBrewer - tuned colors for color blindness.\n\nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy)\n) + \n  geom_point(\n    mapping = aes(color = drv)\n  )\n\n\n\n\n\n\n\n# For people with red-green color blindness: \nggplot(\n  data = mpg,\n  mapping = aes(x = displ, y = hwy)\n) +\n  geom_point(\n    mapping = aes(color = drv, shape = drv)\n  ) +\n  scale_color_brewer(palette = \"Set1\") # See documentation for palettes\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nFor ColorBrewer scales see online documentation at https://colorbrewer2.org/.\n\n\nFor predefined mapping, use scale_color_manual():\n\npresidential |&gt;\n  mutate(id = 33 + row_number()) |&gt;\n  ggplot(\n    mapping = aes(x = start, y = id, color = party)\n  ) +\n  geom_point() +\n  geom_segment(\n    mapping = aes(yend = id, xend = end)\n  ) +\n  scale_y_continuous(\n    name = \"Name of president\",\n    breaks = seq(34, 45, by = 1),\n    labels = presidential$name\n    ) +\n  scale_x_date(\n    name = \"Start of presidency\",\n    date_breaks = \"4 years\", # see documentation\n    date_labels = \"'%y\"\n    ) +\n  scale_color_manual(\n    values = c(Republican = \"red\", Democratic = \"blue\")\n  ) +\n  theme(\n    legend.position = \"top\"\n    ) +\n  labs(\n    title = \"Presidential terms\",\n     color = \"Party\"\n  )\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nFor continuous color, use scale_color_gradient() or scale_fill_gradient(). For diverging scale use scale_color_gradient2() - allows to give negative and positive values different color.\n\n\nOne very useful color scale - viridis color scales:\n\ndf &lt;- tibble(\n  x = rnorm(10000),\n  y =  rnorm(10000)\n)\n\nggplot(\n  data = df,\n  mapping = aes(x = x, y = y)\n) +\n  geom_hex() +\n  coord_fixed() +\n  labs(\n    title = \"Default, continous\",\n    x = NULL, \n    y = NULL\n  )\n\n\n\n\n\n\n\nggplot(\n  data = df, \n  mapping = aes(x = x, y = y)\n) + \n  geom_hex() + \n  coord_fixed() +\n  scale_fill_viridis_c() +\n  labs(\n    title = \"Viridius, continuous\",\n    x = NULL, \n    y = NULL\n  )\n\n\n\n\n\n\n\nggplot(\n  data = df, \n  mapping = aes(x = x, y = y)\n) + \n  geom_hex() +\n  coord_fixed() +\n  scale_fill_viridis_b() +\n  labs(\n    title = \"Viridius, binned\",\n    x = NULL,\n    y = NULL\n  )\n\n\n\n\n\n\n\nggplot(df, aes(x, y)) +\n  geom_hex() +\n  scale_fill_gradient(low = \"white\", high = \"red\") +\n  coord_fixed()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nColor scales come in two variables: scale_color_*() and scale_fill_*().\n\n\n\n\nZooming\nThree ways to control plot limits:. 1. Adjust what data are plotted. 2. Set limits in each scale. 3. Set xlim and ylim in coord_cartesian()\n\n# Left\nggplot(\n  data = mpg, \n  mapping = aes(x = displ, y = hwy)\n) +\n  geom_point(\n    mapping = aes(color = drv)\n  ) +\n  geom_smooth()\n\n`geom_smooth()` using method = 'loess' and formula = 'y ~ x'\n\n\n\n\n\n\n\n\n# Right\nmpg |&gt; \n  filter(displ &gt;= 5 & displ &lt;= 6 & hwy &gt;= 10 & hwy &lt;= 25) |&gt;\n  ggplot(\n    mapping = aes(x = displ, y = hwy)\n  ) +\n  geom_point(\n    mapping = aes(color = drv)\n  ) + \n  geom_smooth() + \n  scale_color_discrete(\n    labels = c(\n      \"4\" = \"4-wheel\",\n      \"f\" = \" front\",\n      \"r\" = \"rear\"\n    )\n  )\n\n`geom_smooth()` using method = 'loess' and formula = 'y ~ x'\n\n\n\n\n\n\n\n\n# compare 'Right' to: \nggplot(\n  data = mpg, \n  mapping = aes(x = displ, y = hwy)\n) +\n  geom_point(\n    mapping = aes(color = drv)\n  ) +\n  geom_smooth() +\n  coord_cartesian(xlim = c(5, 6), ylim = c(10, 25))\n\n`geom_smooth()` using method = 'loess' and formula = 'y ~ x'",
+    "crumbs": [
+      "Home",
+      "Data visualization",
+      "communication"
+    ]
+  },
+  {
+    "objectID": "Visualize/communication.html#themes",
+    "href": "Visualize/communication.html#themes",
+    "title": "communication",
+    "section": "Themes",
+    "text": "Themes\nCustomizing non-data elements of the plot with a theme:\n\nggplot(\n  data = mpg, \n  mapping = aes(x = displ, y = hwy)\n) +\n  geom_point(\n    mapping = aes(color = drv)\n  ) +\n  geom_smooth(se = FALSE) +\n  theme_bw()\n\n`geom_smooth()` using method = 'loess' and formula = 'y ~ x'\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nggplot includes 12 themes: *_bw(), *_light(), *_classic(), *_linedraw(), *_dark(), *_minimal(), *_gray(), *_void(); Many more in add-on packages like ggthemes.\n\n\n\nggplot(\n  data = mpg, \n  mapping = aes(x= displ, y = hwy, color = drv)\n) +\n  geom_point() +\n  labs(\n    title = \"Larger engine sizes tend to have lower fuel economy\",\n    caption = \"Source: https://fueleconomy.gov.\"\n  ) +\n  theme(\n    legend.position = c(0.6, 0.7), # position of legend in plot\n    legend.direction = \"horizontal\", # layout of items in legend\n    legend.box.background = element_rect(color = \"red\"),\n    plot.title = element_text(face = \"bold\", hjust = 1),\n    plot.title.position = \"plot\",\n    plot.caption.position = \"plot\",\n    plot.caption = element_text(hjust = 0),\n    axis.title = element_text(face = \"bold\", color = \"blue\")\n  )",
+    "crumbs": [
+      "Home",
+      "Data visualization",
+      "communication"
+    ]
+  },
+  {
+    "objectID": "Visualize/communication.html#layout",
+    "href": "Visualize/communication.html#layout",
+    "title": "communication",
+    "section": "Layout",
+    "text": "Layout\nPatchwork package allows combining separate plots into same graphic:\n\np1 &lt;- ggplot(mpg, aes(x = displ, y = hwy)) +\n  geom_point() +\n  labs(title = \"Plot 1\")\np2 &lt;- ggplot(mpg, aes(x = drv, y = hwy)) +\n  geom_boxplot() +\n  labs(title = \"Plot 2\")\n\np1 + p2 # First create and save both plots, then place next to each other with +\n\n\n\n\n\n\n\n# Or more complex plot layout:\np3 &lt;- ggplot(mpg, aes(x = cty, y = hwy)) +\n  geom_point() +\n  labs(title = \"Plot 3\")\n\n(p1 | p3) / p2\n\n\n\n\n\n\n\n\nPatchwork allows collecting legends from multiple plots into one common legend - customizing placement, dimension, add title, subtitle, caption, etc. to the plots \\(\\rightarrow\\) look through the guides on the package website: https://patchwork.data-imaginist.com.",
+    "crumbs": [
+      "Home",
+      "Data visualization",
+      "communication"
     ]
   }
 ]
