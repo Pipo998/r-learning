@@ -1,0 +1,564 @@
+---
+title: "Numbers"
+subtitle: "R for Data Science (2e), Chapter 12"
+author: "Filip Kukic"
+toc: true
+theme: darkly
+format: html
+---
+
+### Prerequisites
+
+Mostly functions from base R; will still need tidyverse, as we'll use base functions inside functions like `mutate()` anf `filter()`.
+
+```{r}
+#| label: Prerequisites
+
+library(tidyverse)
+library(nycflights13)
+
+```
+
+
+## Making numbers
+
+Most cases, numbers will be recorded in R's numeric type: integer or double. Sometimes as strings. readr provides useful functions parsing strings into numbers: `parse_double()` and `parse_number()`.
+
+Use `parse_double()` when numbers have been written as strings:
+```{r}
+#| label: Example - parse_double()
+
+x <- c("1.2", "5.6", "1e3")
+class(x)
+
+
+parse_double(x)
+class(parse_double(x))
+
+```
+
+Use `parse_number()` when strings contain non-numeric text that we want to ignore. Useful for currency data and percentages:
+```{r}
+#| label: Example - parse_number()
+
+x <- c("$1,234", "USD 3,513", "59%")
+class(x)
+
+parse_number(x)
+class(parse_number(x))
+
+```
+
+
+## Counts
+
+`count()` is great for quick exploration and checks during analysis:
+```{r}
+#| label: Example - count()
+
+flights |> count(dest)
+
+# Most common values can be retrieved by sort = TRUE:
+flights |> count(dest, sort = TRUE)
+
+# Can perform same computation by hand:
+flights |>
+  group_by(dest) |>
+  summarize(
+    n = n(),
+    delay = mean(arr_delay, na.rm = TRUE),
+    .groups = "drop"
+  ) |> 
+  arrange(desc(n))
+
+# n() takes no argument, accesses information about current 
+
+# If we want to see all values: |> print(n = Inf)
+```
+
+Couple variants of `n()` and `count()`:
++ `n_distinct()`: counts number of distinct (unique) values of one or more variables
+```{r}
+#| label: Example - n_distinct()
+
+flights |>
+  group_by(dest) |>
+  summarize(
+    carriers = n_distinct(carrier)
+  ) |>
+  arrange(desc(carriers))
+```
+
++ A weigthed count is a sum
+```{r}
+#| label: Example - weighted count
+
+flights |>
+  group_by(tailnum) |>
+  summarize(miles = sum(distance))
+
+# Thus count has wt argument:
+flights |>
+  count(tailnum, wt = distance)
+```
+
++ Can count missing values - combining `sum()` and `is.na()`
+```{r}
+#| label: Example - counting missing values
+
+flights |>
+  group_by(dest) |>
+  summarize(n_cancelled = sum(is.na(dep_time))) |>
+  arrange(desc(n_cancelled))
+```
+
+
+## Numeric transformations
+
+Transformation function work well with `mutate()` - as output is same length as input. Most transformation functions built in base R - will list only most practical one.
+
+### Arithmetic and recycling rules
+
+Basics of arithmetic (`x`, `-`, `*`, `/`, `^`). __Recycling rules__ determine what happens with different size sides.
+
+$\rightarrow$ R handles mismatched lengths by recycling (repeating) the short vector:
+```{r}
+#| label: Example - Recycling
+
+x <- c(1, 2, 10, 20)
+x / 5
+# is shorthand for:
+x / c(5, 5, 5, 5)
+
+```
+
+Want to recycle single numbers - BUT R will recylce any shorter length vector:
+```{r}
+#| label: Example2 - Recycling
+
+x * c(1, 2)
+
+x * c(1, 2, 3)
+
+```
+Recycling rules apply to logical comparisons (`==`, `<`, `<=`, `>`, `>=`, `!=`):
+```{r}
+#| label: Example - Recycling logical vector
+
+flights |>
+  filter(month == c(1, 2)) # not correct; Use %in%!
+
+flights |>
+  filter(month %in% c(1, 2))
+```
+
+
+### Minimum and Maximum
+
+Arithmetic functions work onm pairs, e.g., `pmin()` and `pmax()` - when given two or more variables, returns smallest or largest value in each row:
+```{r}
+#| label: Example - pmin() and pmax()
+
+df <- tribble(
+  ~x, ~y,
+  1, 3, 
+  5, 2, 
+  7, NA,
+)
+
+df |>
+  mutate(
+    min = pmin(x, y, na.rm = TRUE),
+    max = pmax(x, y, na.rm = TRUE)
+  )
+
+# Note: summary functions min() and max() return single value from multiple observations
+
+df |> 
+  mutate(
+    min = min(x, y, na.rm = TRUE),
+    max = max(x, y, na.rm = TRUE)
+  )
+```
+
+
+### Modular arithmetic
+
+I.e. division that yields a whole number and a remainder. 
+
+`%/%` = integer division
+`%%` = computes remainder
+```{r}
+#| label: Example - Modular arithmetic
+
+1:10 %/% 3 
+
+1:10 %% 3
+
+flights |>
+  mutate(
+    hour = sched_dep_time %/% 100,
+    minute = sched_dep_time %% 100,
+    .keep = "used"
+  )
+
+flights |>
+  group_by(hour = sched_dep_time %/% 100) |>
+  summarize(prop_cancelled = mean(is.na(dep_time)),
+            n = n()) |> 
+  filter(hour > 1) |>
+  ggplot(
+    mapping = aes(x = hour, y = prop_cancelled)
+  ) +
+  geom_line(color = "gray50") +
+  geom_point(aes(size = n))
+```
+
+
+### Logarithms
+
+Used when dealing with data ranging across multiple orders and converting exponetial growth to linear growth.
+
+Three choices: `log()`, `log2()`(base 2), `log10()`(base 10).
+
+Inverse of `log()` is `exp()`.
+
+
+### Rounding
+
+`round(x)`round number to nearest integer.
+```{r}
+#| label: Example - round()
+
+round(123.456)
+
+```
+
+Can control precision of rounding with second argument, `digits`, i.e. `round(x, digits)`.
+
+```{r}
+#| label: Example - precision of rounding
+
+round(123.456, digits = 2)
+
+round(123.456, digits = 1)
+
+round(123.456, digits = -1) # rounds to nearest ten
+
+round(123.456, digits = -2) # rounds to nearest hundred
+
+round(123.456, digit = -3) # rounds to nearest thousand
+
+# Banker's rounding, i.e. "round half to even":
+round(c(1.5, 2.5))
+
+# floor() and ceiling()
+x <- 123.456
+
+floor(x)
+
+ceiling(x)
+
+# Rounding down to nearest two digits
+floor(x / 0.01) * 0.01
+
+# Rounding up to nearest two digits
+ceiling(x / 0.01) * 0.01
+
+# Round to nearest multiple of 4
+round(x / 4) * 4
+
+round(x / 0.25) * 0.25
+```
+
+
+### Cutting numbers into ranges
+
+Use `cut()` to break up (aka bin) numeric vector into discrete buckets:
+
+```{r}
+#| label: Example - cut()
+
+x <- c(1, 2, 5, 10, 15, 20)
+
+cut(x, breaks = c(0, 5, 10, 15, 20))
+
+# breaks don't need evenly spacing
+cut(x, breaks = c(0, 5, 10, 100))
+
+# can supply labels
+cut(x, 
+  breaks = c(0, 5, 10, 15, 20), 
+  labels = c("sm", "md", "lg", "xl")
+)
+
+# Values outside the range:
+y <- c(NA, -10, 5, 10, 30)
+cut(y, breaks = c(0, 5, 10, 15, 20))
+
+```
+
+
+### Cummulative and rolling aggregates
+
+Base R: `cumsum()`, `cumprod()`, `cummin()`, `cummax()`
+`dplyr::cummean()` provides cumulative means.
+
+```{r}
+#| label: Example - cumulative functions
+
+x <- 1:10
+cumsum(x)
+
+```
+
+
+## General transformations
+
+### Ranks
+
+See documentation for: `dplyr::min_rank()`, `dplyr::row_number()`, `dplyr::dense_rank()`
+
+```{r}
+#| label: Example - *_rank() functions
+
+x <- c(1, 5, 5, 17, 22, NA)
+
+min_rank(x) # gives tie same smallest value
+
+dense_rank(x) # works like min_rank() but leaves no gap
+
+row_number(x) # gives every input unique rank
+# equivalent to
+rank(x, ties.method = "first", na.last = "keep") # see documentation
+
+
+min_rank(desc(x)) # largest values get smallest rank
+
+# Example with df
+df <- tibble(x = x)
+
+df |>
+  mutate(
+    row_number = row_number(x),
+    dense_rank = dense_rank(x),
+    percent_rank = percent_rank(x),
+    cume_dist = cume_dist(x)
+  )
+
+```
+
+:::{.callout-note}
+Many of these results can be achieved by picking appropriate `ties.method` argument for base R `rank()`. Set `na.last = "keep"` to keep `NA` as `NA`.
+:::
+
+`row_number()` can also be used without any arguments when inside dplyr verb. Useful with %% and %/% dividing in similar sized groups:
+```{r}
+#| label: Example - row_number()
+
+df <- tibble(id = 1:10)
+
+df |>
+  mutate(
+    row0 = row_number() - 1,
+    three_groups = row0 %% 3, 
+    three_in_each_group = row0 %/% 3
+  )
+
+```
+
+
+### Offsets
+
+`dplyr::lag()` and `dplyr::lead()` allow to refer to values before or after "current" value - returns vector of same length:
+```{r}
+#| label: Example - lag() and lead()
+
+x <- c(2, 5, 11, 11, 19, 35)
+
+lag(x)
+
+lead(x)
+
+# Difference between current and previous value
+x - lag(x)
+
+# When does current value change?
+x == lag(x)
+
+```
+
+:::{.callout-note}
+Call lead or lag by more than one position by using second argument, `n`.
+:::
+
+
+### Consecutive identifiers
+
+E.g., breaking events into sessions - begin new session after some gap
+```{r}
+#| label: Example - cons identifiers
+
+events <- tibble(
+  time = c(0, 1, 2, 3, 5, 10, 12, 15, 17, 19, 20, 27, 28, 30)
+)
+
+events <- events |>
+  mutate(
+    diff = time - lag(time, default = first(time)),
+    has_gap = diff >= 5,
+    group = cumsum(has_gap) # allows us now to group_by
+  )
+
+events
+
+# Another grouping approach
+# df with repeating values
+df <- tibble(
+  x = c("a", "a", "a", "b", "c", "c", "d", "e", "a", "a", "b", "b"),
+  y = c(1, 2, 3, 2, 4, 1, 3, 9, 4, 8, 10, 199)
+)
+
+df |> 
+  group_by(id = consecutive_id(x)) |>
+  slice_head(n = 1)
+```
+
+```{r}
+#| label: Useful Example
+# Useful Example
+# All destinations that are flown by at least two carriers
+# Relative ranking of the carriers based on their performance for the same destination
+
+flights |>
+  filter(n_distinct(carrier) > 2, .by = dest) |>
+  summarize(
+    avg_dep_delay = mean(dep_delay, na.rm = TRUE),
+    n = n(),
+    .by = c(dest, carrier)
+  ) |>
+  mutate(
+    rank = min_rank(avg_dep_delay),
+    .by = dest) |>
+  arrange(dest, rank)
+  
+  
+```
+
+
+## Numeric summaries
+
+### Center
+Alternativ to `mean()` is function `median()` - finding values in middle of vector. 
+
+For symmetric distribution, rather report mean, for skewed distributions usually report median.
+
+```{r}
+#| label: Example - median
+
+flights |>
+  group_by(year, month, day) |>
+  summarize(
+    mean = mean(dep_delay, na.rm = TRUE),
+    median = median(dep_delay, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  ggplot(
+    mapping = aes(x = mean, y = median)
+  ) +
+  geom_abline(slope = 1, intercept = 0, color = "white", linewidth = 2) +
+  geom_point()
+```
+
+
+### Minimum, maximum, and quantiles
+
+Other locations:
++ `min()`, `max()` - giving largest and smallest values.
++ `quantile()` - Syntax: `quantile(x, 0.25)`, finds `x` greater than 25% of the values. Note: `median(x) == quantile(x, 0.5)`.
+
+```{r}
+#| label: Example - quantile(
+
+flights |>
+  group_by(year, month, day) |>
+  summarize(
+    max = max(dep_delay, na.rm = TRUE),
+    q95 = quantile(dep_delay, 0.95, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+
+### Spread
+
+Common summaries: 
++ `sd()` - standard deviation 
++ `IQR()` - inter-quartile range, i.e., `quantile(x, 0.75) - quantile(x, 0.25)`
+
+```{r}
+#| label: Example - spread
+
+flights |>
+  group_by(origin, dest) |>
+  summarize(
+    distance_iqr = IQR(distance), # Every distance the same for every flight thus IQR = 0? Not quite!
+    n = n(),
+    .groups = "drop"
+  ) |>
+  filter(distance_iqr > 0)
+```
+
+
+### Distributions
+
+Visualize distribution before comitting to summary statistics - avoid missing important insights by choosing wrong summary
+
+E.g., plot shows 365 frequency polygons of dep_delay, one for each day, are overlaid. Distribution seems to follow common pattern - it is fine to use same summary for each day:
+```{r}
+#| label: Example - visualizing distribution
+
+flights |>
+  filter(dep_delay < 120) |> 
+  ggplot(aes(x = dep_delay, group = interaction(day, month))) + 
+  geom_freqpoly(binwidth = 5, alpha = 1/5)
+```
+
+
+### Positions
+
+Final type of summary - Extracting values at specific positions:
+`first(x)`, `last(x)`, `nth(x, n)`.
+
+```{r}
+#| label: Example - positions
+
+flights |>
+  group_by(year, month, day) |>
+  summarize(
+    first_dep = first(dep_time, na_rm = TRUE),
+    fifth_dep = nth(dep_time, 5, na_rm = TRUE),
+    last_dep = last(dep_time, na_rm = TRUE)
+  )
+
+# Note: dplyr functions use _ to separate components of functions
+# Ever need [ function?
+
+flights |> 
+  group_by(year, month, day) |>
+  mutate(r = min_rank(sched_dep_time)) |>
+  filter(r %in% c(1, max(r)))
+```
+
+
+### With mutate()
+
+Summary functions typically paired with `summarize()`. Because of recycling, can be paired with `mutate()`.
+
++ `x / sum(x)`: computes proportion of total
++ `(x - mean(x)) / sd(x)`: computes Z-score
++ `(x - min(x)) / (max(x) - min(x))`: standardize to range [0, 1]
++ `x / first(x)`: compute index based on first observation.
+
+

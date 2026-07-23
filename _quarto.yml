@@ -47,6 +47,9 @@ website:
           - href: Transform/logical-vectors.qmd
             text: Logical Vectors
             
+          - href: Transform/numbers.qmd
+            text: Numbers
+            
 format:
   html:
     theme: darkly
