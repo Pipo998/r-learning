@@ -13,3 +13,4 @@ This section collects my notes and exercises on data transformation in R.
 
 - [Logical Vectors](Transform/logical-vectors.qmd)
 - [Numbers](Transform/numbers.qmd)
+- [Strings](Transform/strings.qmd)

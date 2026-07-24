@@ -1,0 +1,403 @@
+---
+title: "Strings"
+subtitle: "R for Data Science (2e), Chapter 14"
+toc: true
+theme: darkly
+format: html
+---
+
+
+### Prerequisites
+```{r}
+#| label: Prerequisites
+
+library(tidyverse)
+library(babynames)
+
+```
+
+
+:::{.callout-tip}
+__stringr__ functions start with `str_` - will trigger autocomplete, can be useful.
+:::
+
+
+## Creating a string
+
+```{r}
+#| label: Creating strings
+
+string1 <- "This is a sting"
+
+string2 <- 'Include "quote" with single quotes'
+```
+
+
+### Escapes
+
+```{r}
+#| label: Escaping special characters
+
+double_quote <- "\"" # or '"'
+single_quote <- "\'" # or "'"
+backslash <- "\\"
+
+# can see content with str_view()
+x <- c(double_quote, single_quote, backslash)
+str_view(x)
+
+```
+
+
+### Raw strings
+
+```{r}
+#| label: Raw strings
+
+
+tricky <- "double_quote <- \"\\\"\" # or '\"' single_quote <- '\\'' # or \"'\""
+str_view(tricky)
+
+# Use raw string 
+tricky <- r"(double_quote <- "\"" # or '"' single_quote <- '\'' # or "'")"
+str_view(tricky)
+
+```
+
+
+### Other special characters
+
+Most common: `\n` (new line) and `\t` (tab). See complete list under `?Quotes`.
+
+```{r}
+#| label: Special characters
+
+x <- c("one\ntwo", "one\ttwo", "\u00b5", "\U0001f604")
+x
+str_view(x)
+
+```
+
+
+## Creating many strings from data 
+
+### str_c()
+
+Takes any number of vectors as arguments and returns a character vector:
+```{r}
+#| label: str_c()
+
+str_c("x", "y")
+
+str_c("x", "y", "z", sep = " ")
+
+str_c("Hello ", c("John", "Susan"))
+
+```
+
+Documentation: `str_c()` similar to `paste0()` - BUT designed to be used with `mutate()`:
+```{r}
+#| label: str_c() and mutate()
+
+df <- tibble(name = c("Flora", "David", "Terra", NA))
+
+df |> mutate(greeting = str_c("Hi ", name, "!"))
+
+```
+
+Missing values can be displayed in another way using `coalesce()` to replace them: 
+```{r}
+#| label: Using coalesce()
+# Documentation 'Value' - Vector with same type and size
+df |>
+  mutate(
+    greeting1 = str_c("Hi ", coalesce(name, "you"), "!"),
+    greeting2 = coalesce(str_c("Hi ", name, "!"), "Hi!")
+  )
+```
+
+
+### str_glue()
+
+Mixing many fixed and variable strings with str_c() requires typing a lot of `"`s. Alternative: Use __glue package__ via `str_glue()` - special feature: Anything inside `{}` will be evaluated like it's outside of quotes (see `?str_glue`):
+```{r}
+#| label: str_glue
+
+df |>
+  mutate(greeting = str_glue("Hi {name}"))
+
+
+```
+
+
+### str_flatten()
+
+`str_flatten()` works with `summarize()` - takes character vector and combines each element of the vector into single string:
+```{r}
+#| label: str_flatten()
+
+str_flatten(c("x", "y", "z"))
+
+str_flatten(c("x", "y", "z"), collapse = ", ")
+
+str_flatten(c("x", "y", "z"), collapse = ", ", last = ", and ")
+
+
+# Works well with summarize:
+
+df <- tribble(
+  ~ name, ~ fruit,
+  "Carmen", "banana",
+  "Carmen", "apple",
+  "Marvin", "nectarine",
+  "Terence", "cantaloupe",
+  "Terence", "papaya",
+  "Terence", "mandarin"
+)
+
+df |> 
+  group_by(name) |>
+  summarize(fruits = str_flatten(fruit, collapse = ", "))
+
+```
+
+
+## Extracting data from strings
+
+Common that multiple variables getting crammed together into a single string.
+
+Four different tidyr functions for extraction:
++ `df |> separate_longer_delim(col, delim)`
++ `df |> separate_longer_position(col, width)`
++ `df |> separate_wider_delim(col, delim, names)`
++ `df |> separate_wider_position(col, widths)```
+
+Similar with `pivot_longer()` and `pivot_wider()` - make input data frame longer creating new rows and wider by generating new columns.
+
+`delim` splits up string with delimiter like `", "` or `" "`.; `position` splits at specific widths, like `c(3, 5, 2)`.
+
+
+### Separating into rows
+
+Useful when number of components varies from row to row. Most common case is splitting based on delimiter:
+```{r}
+#| label: separate_longer_delim(col, delim)
+
+df1 <- tibble(x = c("a,b,c", "d,e", "f"))
+
+df1 |>
+  separate_longer_delim(x, delim = ",")
+
+df2 <- tibble(x = c("1211", "131", "21"))
+
+df2 |>
+  separate_longer_position(x, width = 1)
+
+```
+
+### Separating into columns
+
+Useful when fixed numbers of components in each string, and want to spread into columns:
+```{r}
+#| label: separate_wider_delim(col, delim, names)
+
+df3 <- tibble(x = c("a10.1.2022", "b10.2.2011", "e15.1.2015"))
+
+df3 |>
+  separate_wider_delim(x,
+                       delim = ".",
+                       names = c("code", "edition", "year")
+                       )
+
+# Can also omit specific piece by NA
+
+df3 |>
+  separate_wider_delim(x,
+                       delim = ".",
+                       names = c("code", NA, "year")
+                       )
+
+# separate_wider_position() needs specifying width of each column
+
+df4 <- tibble(x = c("202215TX", "202122LA", "202325CA"))
+
+df4 |>
+  separate_wider_position(
+    x,
+    widths = c(year = 4, age = 2, state = 2)
+  )
+
+```
+
+
+### Diagnosing widening problems
+
+```{r}
+#| label: separate_wider_delim() arguments
+
+df <- tibble(a = c("1-1-1", "1-1-2", "1-3", "1-3-2", "1"))
+
+#df |>
+#  separate_wider_delim(
+#    a,
+#    delim = "-",
+#    names = c("x", "y", "z")
+#  )
+
+ df |>
+  separate_wider_delim(
+    a, delim = "-", names = c("x","y","z"),
+    too_few = "debug"
+  )
+```
+ 
+```{r}
+#| label: Too few
+# Too few pieces
+df |>
+  separate_wider_delim(
+    a, delim = "-", names = c("x","y","z"),
+    too_few = "align_start"
+  )
+
+df |>
+  separate_wider_delim(
+    a, delim = "-", names = c("x","y","z"),
+    too_few = "align_end"
+  )
+
+df |>
+  separate_wider_delim(
+    a, delim = "-", names = c("x","y","z"),
+    too_few = "debug"
+  )
+```
+
+```{r}
+#| label: Too many
+# Too many pieces
+
+df <- tibble(a = c("1-1-1", "1-1-2", "1-3-5-6", "1-3-2", "1-3-5-7-9"))
+
+df |>
+  separate_wider_delim(a, delim = "-",
+                       names = c("x", "y", "z"),
+                       too_many = "drop")
+
+df |>
+  separate_wider_delim(a, delim = "-",
+                       names = c("x", "y", "z"),
+                       too_many = "merge")
+
+```
+
+
+## Letters
+
+`str_length()` tells number of letters in strings
+```{r}
+#| label: Number of strings
+
+str_length(c("a", "R for data science", NA))
+```
+
+```{r}
+#| label: using count() and str_length()
+
+babynames |>
+  count(length = str_length(name), wt = n)
+
+# Note: equivalent to
+babynames |>
+  mutate(length = str_length(name)) |>
+  group_by(length) |>
+  summarize(n = sum(n))
+
+# Can use filter() to look at longest name
+babynames |>
+  filter(str_length(name) == 15) |>
+  count(name, wt = n, sort = TRUE)
+
+```
+
+
+### Subsetting
+
+Extract parts of string via `str_sub(string, start, end)`.
++ `start` and `end` are position where substring starts and ends (inclusive arguments). Length of returned string: `end - start + 1`:
+```{r}
+#| label: str_sub(string, start, end)
+
+x <- c("Apple", "Banana", "Pear")
+
+str_sub(x, start = 1, end = 3)
+
+# Can use negative values to count back from the end of the string:
+# -1 is last character, -2 is second to last character
+
+str_sub(x, start = -3, end = -1)
+
+# Too short string; str_sub returns as much as possible
+
+str_sub("a", start = -3, end = -1)
+
+babynames |>
+  mutate(
+    first = str_sub(name, start = 1, end = 1),
+    last = str_sub(name, start = -1, end = -1)
+  )
+
+# Example: Extracting middle letter; when even, extract left letter
+babynames |>
+      mutate(
+        length = str_length(name),
+        middle_length = if_else(
+          length %% 2 == 0,
+          length / 2,
+          round(length / 2)),
+        middle_letter = str_sub(
+          name, start = middle_length, end = middle_length
+        )
+      )
+
+```
+
+
+## Non-English text
+
+### Encoding 
+
+Underlying representation of strings in R accessed via `charToRaw()`:
+```{r}
+#| label: charToRaw()
+
+charToRaw("Hadley")
+
+# Each represents one letter
+# mapping from hexadecimal numbers to character is called encoding
+# Encoding is ASCII
+
+```
+For more read http://kunststube.net/encoding/.
+
+### Letter variations
+
+```{r}
+#| label: Letter variations
+
+u <- c("\u00fc", "u\u0308")
+str_view(u)
+
+str_length(u)
+
+str_sub(u, 1, 1)
+
+
+u[[1]] == u[[2]]
+
+
+str_equal(u[[1]], u[[2]])
+
+
+```
+

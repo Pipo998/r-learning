@@ -50,6 +50,9 @@ website:
           - href: Transform/numbers.qmd
             text: Numbers
             
+          - href: Transform/strings.qmd
+            text: Strings
+            
 format:
   html:
     theme: darkly
