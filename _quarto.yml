@@ -53,6 +53,9 @@ website:
           - href: Transform/strings.qmd
             text: Strings
             
+          - href: Transform/regular-expressions.qmd
+            text: Regular Expressions
+            
 format:
   html:
     theme: darkly
