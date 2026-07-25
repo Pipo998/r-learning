@@ -56,6 +56,9 @@ website:
           - href: Transform/regular-expressions.qmd
             text: Regular Expressions
             
+          - href: Transform/factors.qmd
+            text: Factors
+            
 format:
   html:
     theme: darkly
