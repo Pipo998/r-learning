@@ -11,6 +11,8 @@ website:
         text: Home
       - href: visualize.qmd
         text: Visualization
+      - href: transform.qmd
+        text: Transformation
 
   sidebar:
     style: docked
@@ -58,6 +60,9 @@ website:
             
           - href: Transform/factors.qmd
             text: Factors
+            
+          - href: Transform/dates-and-times.qmd
+            text: Date and times
             
 format:
   html:
