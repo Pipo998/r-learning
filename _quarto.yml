@@ -64,6 +64,12 @@ website:
           - href: Transform/dates-and-times.qmd
             text: Date and times
             
+          - href: Transform/missing-values.qmd
+            text: Missing values
+          
+          - href: Transform/joins.qmd
+            text: Joins
+            
 format:
   html:
     theme: darkly

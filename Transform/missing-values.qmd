@@ -1,0 +1,256 @@
+---
+title: "Missing values"
+subtitle: "R for Data Science (2e), Chapter 18"
+toc: true
+theme: darkly
+format: html
+---
+
+### Prerequisites
+```{r}
+#| label: Prerequisites
+
+library(tidyverse)
+```
+
+
+## Explicit missing values
+
+Explicit values - i.e., cells with `NA`.
+
+
+### Last observation carried forward
+
+Common use for missing values is as data entry convenience. Missing values, when entry by hand, indicate that previous value should be carried forward, i.e., repeated:
+```{r}
+#| label: Carrying forward values by NA values
+
+# Carrying forward values by NA values
+treatment <- tribble(
+  ~person, ~treatment, ~response,
+  "Derrick Whitemore", 1, 7,
+  NA, 2, 10, 
+  NA, 3, NA, 
+  "Katherine Burke", 1, 4
+)
+
+# treatment |>
+#   fill(person, treatment, response)
+
+treatment |>
+  fill(everything())
+
+# locf = "last observation carried forward"
+
+```
+
+
+### Fixed values
+
+Sometime `NA` represent fixed, known values, most commonly 0. Can use `dplyr::coalesce()`:
+```{r}
+#| label: Fixed values
+
+x <- c(1, 4, 5, 7, NA)
+coalesce(x, 0)
+
+# Can specify NA values when reading in CSV data
+# read_csv(file = path, na = "99"), specify all "99" values as NA
+
+# Alternatively use na_if():
+x <- c(1, 4, 5, 7, -99)
+na_if(x, -99)
+
+```
+
+
+### NaN
+
+Special type of NA value: `NaN` (not a number). Behaves like `NA` values:
+```{r}
+#| label: NaN values
+
+x <- c(NA, NaN)
+x * 10 
+
+x == 1
+
+is.na(x)
+is.nan(x)
+
+na_if(c(TRUE, 99), x)
+```
+
+Encounter `NaN` when performing math:
+```{r}
+#| label: Encountering NaN
+
+0 / 0
+
+0 * Inf
+
+Inf - Inf
+
+sqrt(-1)
+```
+
+
+## Implicit missing values
+
+`NA` values that cannot be seen:
+```{r}
+#| label: Implicit missing values
+
+stocks <- tibble(
+  year  = c(2020, 2020, 2020, 2020, 2021, 2021, 2021),
+  qtr   = c(   1,    2,    3,    4,    2,    3,    4),
+  price = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+```
+
++ `price` in 4th quarter of 2020 - `NA` - __explicit__
++ `price` 1st quarter of 2021 - does not appear in dataset- __implicit__
+
+
+### Pivoting
+
+Making implicit missing values explicit (vice versa) by pivoting:
+```{r}
+#| label: Pivoting and missing values
+
+stocks |>
+  pivot_wider(names_from = qtr,
+              values_from = price
+              )
+
+stocks |>
+  pivot_wider(names_from = qtr,
+              values_from = price
+              )
+
+```
+
+
+### Complete
+
+tidyr::complete() allows generating missing values by providing set of variables defining combination of rows that should exist:
+```{r}
+#| label: complete()
+
+stocks |>
+  complete(year, qtr)
+
+# ?complete: ... Specification of columns to expand or complete; 
+# Finds all unique combinations of x, y, and z, including those not
+# present in the data.
+
+# Can also provide own data, when variables incomplete themselves
+
+stocks |>
+  complete(year = 2019:2021, qtr)
+```
+
+Range of variable correct, but not all values present, use `full_seq(x, 1)` generating all values from `min(x)` to `max(x)` spaced by 1.
+
+Alternatively create dataframe containig all rows that should exist, then combine with original dataset with `dplyr::full_join`.
+
+
+### Joins
+
+Revealing implicitely missing observations via __joins__. Can often only know what values are missing from dataset when comparing to another.
+
+`dplyr::anti_join(x, y)` useful here - selects rows in `x` that dont have match in `y`:
+```{r}
+#| labe: anti_join()
+
+library(nycflights13)
+
+flights |>
+  distinct(faa = dest) |>
+  anti_join(airports) # missing information for four airports in flights
+
+flights |>
+  distinct(tailnum) |>
+  anti_join(planes) # missing information for 722 planes in flights
+
+```
+
+### Exercise
+
+```{r}
+#| label: Exercise1
+
+# Relationship between carrier and rows missing from planes?
+flights |>
+    anti_join(planes, by = "tailnum") |>
+    count(carrier, sort = TRUE)
+
+```
+
+
+
+## Factors and empty groups
+
+Group not containing any observations - can arise when working with factors:
+```{r}
+#| label: Empty groups
+
+health <- tibble(
+  name   = c("Ikaia", "Oletta", "Leriah", "Dashay", "Tresaun"),
+  smoker = factor(c("no", "no", "no", "no", "no"), levels = c("yes", "no")),
+  age    = c(34, 88, 75, 47, 56),
+)
+
+health |>
+  count(smoker) # smoker groups is empty, but we know they exist
+
+levels(health$smoker)
+
+# Can request count() to keep all groups using .drop = FALSE
+
+health |>
+  count(smoker, .drop = FALSE) # now count for smoker is included
+  
+
+```
+
+Same applies to ggplot2's discrete axis - drop levels that don't have any values - can force them to display supplying `drop = FALSE`:
+```{r}
+#| label: Keeping all levels
+
+ggplot(health, aes(x = smoker)) + 
+  geom_bar() +
+  scale_x_discrete()
+
+ggplot(health, aes(x = smoker)) +
+  geom_bar() +
+  scale_x_discrete(drop = FALSE)
+```
+
+Same problem and solution with `group_by()`:
+```{r}
+#| label: Missing levels when grouping
+
+health |>
+  group_by(smoker, .drop = FALSE) |>
+  summarize(,
+            n = n(),
+            mean_age = mean(age),
+            min_age = min(age),
+            max_age = max(age),
+            sd_age = sd(age)
+            ) # But do have implicit missing values
+# can make them explicit
+health |>
+  group_by(smoker) |>
+  summarize(,
+            n = n(),
+            mean_age = mean(age),
+            min_age = min(age),
+            max_age = max(age),
+            sd_age = sd(age)
+            ) |> # But do have implicit missing values
+  complete(smoker) # But count is now NA instead of 0 (drawback of approach)
+
+```
+
