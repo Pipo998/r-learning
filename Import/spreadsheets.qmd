@@ -1,0 +1,335 @@
+---
+title: "Spreadsheets"
+subtitle: "R for Data Science (2e), Chapter 20"
+toc: true
+theme: darkly
+format: html
+---
+
+## Excel
+
+Data organized in worksheets inside spreadsheet files.
+
+
+### Prerequisites
+```{r}
+#| label: Prerequisites
+#| output: false
+
+library(readxl)
+library(tidyverse)
+library(writexl)
+
+```
+
+
+### Getting started
+
++ `read_xls()` - reads Excel files with `xls` format
+
++ `read_xlsx()` - reads Excel files with `xlsx` format
+
++ `read_excel()` - reads both `xls` and `xlsx` - guesses file type based in input
+
+
+### Reading Excel spreadsheets
+```{r}
+#| label: Loading excel data
+
+
+students <- read_excel(path = "/Users/filipkukic/Desktop/students.xlsx")
+
+students
+
+students <- read_excel(path = "/Users/filipkukic/Desktop/students.xlsx",
+           col_names = c("student_id", "full_name", "favourite_food", "meal_plan", "age"),
+           na = c("", "N/A"), # empty strings also recognized as NA 
+           skip = 1,
+           col_types = c("numeric", "text", "text", "text", "text")) # load age as text first, then parse as number
+                                            
+students <- students |>
+  mutate(
+    age = if_else(age == "five", "5", age),
+    age = parse_number(age)
+  )
+```
+
+
+
+### Reading worksheets
+
+```{r}
+#| label: Reading worksheets
+
+penguins_torgersen <- read_excel(path = "/Users/filipkukic/desktop/penguins.xlsx",
+                       sheet = "Torgersen Island",
+                       na = c("", "NA"))
+
+penguins
+
+# Can use excel_sheets() to get information on all worksheets in Excel spreads.
+# then read the ones interested in 
+excel_sheets(path = "/Users/filipkukic/desktop/penguins.xlsx")
+
+penguins_biscoe <- read_excel(path = "/Users/filipkukic/desktop/penguins.xlsx",
+                              sheet = "Biscoe Island", 
+                              na = c("", "NA"))
+
+penguins_dream <- read_excel(path = "/Users/filipkukic/desktop/penguins.xlsx",
+                             sheet = "Dream Island", 
+                             na = c("", "NA"))
+```
+
+Penguins dataset spread across three worksheets in spreadsheet:
+```{r}
+#| label: Dimensions
+
+dim(penguins_torgersen)
+dim(penguins_biscoe)
+dim(penguins_dream)
+
+# Have same number of columns, can bind them via bind_rows()
+
+# penguins_alt_bind <- rbind(penguins_torgersen, penguins_biscoe, penguins_dream)
+
+penguins <- bind_rows(penguins_torgersen, penguins_biscoe, penguins_dream) # more flexible than base R rbind
+
+```
+
+
+### Reading part of a sheet
+
+```{r}
+#| label: Reading parts of a sheet
+
+# can load example sheets via readxl_example()
+deaths_path <- readxl_example("deaths.xlsx")
+deaths_path
+
+deaths <- read_excel(path = deaths_path)
+deaths
+
+
+
+deaths <- read_excel(path = deaths_path,
+                     range = "A5:F15") # can also use skip, n_max arguments
+deaths
+```
+
+
+### Data types
+
+__CSV__: Values are strings - everything is a string.
+
+__Excel__: Values (Cells) can be four things:
++ boolean - `TRUE`, `FALSE`, `NA`
++ number - "10", "10.5", etc. 
++ datetime - "11/1/21", "11/1/21 3:00 PM", etc.
++ text string - "ten", etc. 
+
+__Recommendation__: Let readxl guess the column types - confirm column types - if necessary, go back and re-import specifying `col_types`. If column has mix of types - set type of column to `"list"`, which loads column as list of length 1, where type of each element of vector is guessed.
+
+
+### Writing to Excel
+
+```{r}
+#| label: Writing to Excel
+
+bake_sale <- tibble(
+  item = factor(c("brownie", "cupcake", "cookie")),
+  quantitiy = c(10, 5, 8)
+)
+
+bake_sale
+
+# Can write data back to disk as Excel file using write_xlsx() function:
+write_xlsx(bake_sale, path = "/Users/filipkukic/Desktop/bake-sale.xlsx")
+
+# Excel unreliable - as we read back in data type will be lost:
+read_excel(path = "/Users/filipkukic/Desktop/bake-sale.xlsx")
+# Note: type of item is "character", though we specified it as "factor"
+
+```
+
+
+### Formatted output
+
+For additional features - writing to sheets within spreadsheet and styling - use __openxlsx package__ - reading recommendation: https://ycphs.github.io/openxlsx/articles/Formatting.html.
+
+
+### Exercises
+```{r}
+#| label: Exercise1
+
+# Ex1
+# Create data frame
+survey <- tibble(
+  survey_id = 1:6,
+  n_pets = c(0, 1, "N/A", "two", 2, "")
+)
+# Write to excel
+write_xlsx(survey, path = "/Users/filipkukic/Desktop/survey.xlsx")
+
+# Read in excel
+survey_loaded <- read_excel(path = "/Users/filipkukic/Desktop/survey.xlsx",
+                            na = c("", "N/A"),
+                            col_types = c("numeric", "text"))
+
+survey_loaded |>
+  mutate(
+    n_pets = if_else(n_pets == "two", "2", n_pets),
+    n_pets = parse_number(n_pets)
+  )
+
+
+# Ex2
+roster <- read_excel(path = "/Users/filipkukic/Desktop/roster.xlsx") |>
+  fill(group, subgroup) 
+
+roster
+
+
+# Ex3 
+
+sales1 <- read_excel(path = "/Users/filipkukic/Desktop/sales.xlsx",
+                    skip = 4) |>
+  slice_head(n = 3) |> 
+  rename("id" = "Brand 1") |>
+  mutate("brand" = "Brand 1",
+         n = parse_number(n),
+         id = parse_number(id))
+sales1
+
+# |>
+#  mutate("id" = "Brand 1")
+         
+
+
+sales2 <- read_excel(path = "/Users/filipkukic/Desktop/sales.xlsx",
+                    skip = 8) |>
+  rename("id" = "Brand 2") |>
+  mutate("brand" = "Brand 2")
+
+sales2
+
+sales <- bind_rows(sales1, sales2) # binding both
+sales <- sales |>
+  relocate(brand, .before = id) # relocating brand
+sales  
+
+# Alternatively: 
+
+sales <- read_excel(
+  path = "~/Desktop/sales.xlsx",
+  skip = 4,
+  col_names = c("id", "n"),
+  n_max = 9
+)
+
+sales <- sales |>
+  mutate(
+    brand = if_else(str_detect(id, "Brand"), id, NA_character_)
+  ) |>
+  fill(brand) |>
+  filter(!str_detect(id, "Brand")) |>
+  mutate(
+    id = parse_number(id),
+    n = parse_number(n)
+  ) |>
+  relocate(brand)
+
+sales
+
+
+# Ex4: 
+
+read_excel(path = "~/Desktop/students.xlsx", 
+           na = c("", "N/A")) |>
+  janitor::clean_names() |>
+  mutate(age = if_else(age == "five", "5", age),
+         age = parse_number(age))
+```
+
+
+## Google Sheets
+
+### Prerequisites
+```{r}
+#| label: Prereq - google sheets
+
+library(googlesheets4)
+library(tidyverse)
+```
+
+
+### Getting started
+
+__Main fuction__: 
+
+`read_sheet()` - reads Google Sheet from URL or file id (function also called `range_read()`).
+
+Can create brand new sheet with `gs4_create()` or write to existing sheet with `sheet_write()`
+
+
+### Reading Google Sheets
+
+First argument to `read_sheet()` is URL of file to read:
+
+https://docs.google.com/spreadsheets/d/1V1nPp1tzOuutXFLb3G9Eyxi3qxeEhnOXUzL5_BcCQ0w - (file from before, that we downloaded as xlsx)
+
+Often useful to find file ID instead: 1V1nPp1tzOuutXFLb3G9Eyxi3qxeEhnOXUzL5_BcCQ0w
+```{r}
+gs4_deauth() # see ?gs4_deauth()
+
+students_sheet_id <- "1V1nPp1tzOuutXFLb3G9Eyxi3qxeEhnOXUzL5_BcCQ0w"
+
+students <- read_sheet(students_sheet_id)
+students
+
+# Similar to read_excel(), can supply column name and type, and na string
+students <- read_sheet(students_sheet_id,
+                       na = c("", "N/A"),
+                       col_names =  c("student_id", "full_name", "favourite_food", "meal_plan", "age"),
+                       skip = 1,
+                       col_types = "dcccc") |>
+  mutate(age = if_else(age == "five", "5", age), 
+         age = parse_number(age))
+
+students
+```
+
+
+Can also read individual sheets from Google Sheets:
+
+Can obtain list of all sheets within Google Sheets with `sheet_names()`
+and can read in portion of Google Sheets by defining `range` ind `read_sheet()`.
+```{r}
+#| label: Reading individual sheets from google sheets
+
+# penguins_sheet_id <- "1aFu8lnD_g0yjF5O-K6SFgSEWiHPpgvFCF0NY9D6LXnY"
+# read_sheet(penguins_sheet_id, sheet = "Torgersen Island")
+
+```
+
+
+### Writing to Google Sheets
+
+`write_sheet()` - first argument is data frame, second argument is name (identifier) of Google Sheet to write to:
+```{r}
+#| label: write_sheet()
+
+# write_sheet(bake_sale, ss = "bake-sale")
+
+# Can also specify the sheet argument
+
+# write_sheet(bake_sale, ss = "bake-sale", sheet = "Sales")
+```
+
+
+### Authentication
+
+Reading a private sheet or writing sheet requires authentication - gs4 can view and manage your Google Sheets.
+
+See https://googlesheets4.tidyverse.org/articles/auth.html.
+
+

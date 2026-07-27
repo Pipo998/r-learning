@@ -1,0 +1,15 @@
+---
+title: "Import"
+thor: "Filip Kukic"
+format: html
+editor: source
+---
+
+# Import
+
+This section collects my notes and exercises on data import in R.
+
+## Chapters
+
+- [Spreadsheets](Import/spreadsheets.qmd)
+- [Databases](Import/databases.qmd)

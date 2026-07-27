@@ -70,6 +70,16 @@ website:
           - href: Transform/joins.qmd
             text: Joins
             
+            
+      - section: "Import"
+        href: import.qmd
+        contents:
+          - href: Import/spreadsheets.qmd
+            text: Spreadsheets
+            
+          - href: Import/databases.qmd
+            text: Databases
+            
 format:
   html:
     theme: darkly
