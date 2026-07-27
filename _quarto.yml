@@ -13,6 +13,8 @@ website:
         text: Visualization
       - href: transform.qmd
         text: Transformation
+      - href: import.qmd
+        text: Import
 
   sidebar:
     style: docked
