@@ -1,0 +1,582 @@
+---
+title: "Joins"
+subtitle: "R for Data Science (2e), Chapter 19"
+toc: true
+theme: darkly
+format: html
+---
+
+## Introduction
+
+Two important types of joins:
+
++ __Mutating joins__ - i.e., adding new variables to one data frame from matching observations in another
+
++ __Filtering joins__ - i.e., filtering observations from one data frame based on whether or not they match an observation in another.
+
++ __Keys__ - i.e., variables connecting pair of data frames in a join
+
+
+### Prerequisites
+```{r}
+#| label: Prerequisites
+
+library(tidyverse)
+library(nycflights13)
+```
+
+
+## Keys
+
+Connecting two tables through pair of keys, within each table. 
+
+### Primary and foreign key
+
+Every join involves pair of keys:
+
++ __primary keys__: variable or set of variables uniquely identifying each observation (more than one variable: __"compound key"__)
+```{r}
+#| label: Primary key
+
+# Can identify airline with carrier code, thus carrier -> primary key
+airlines 
+
+# Can identify each airport by airport code, thus faa -> primary key
+airports
+
+# Can identify planes by tailnum, thus tailnum -> primary key
+planes
+
+# Can identify each observation by combination of location and time
+# origin, time_hour -> primary key
+weather
+```
+
+__foreign key__ - variable/set of variables corresponding to primary key in another table:
+
++ `flights$tailnum` foreign key to primary key `planes$tailnum`
+
++ `flights$carrier` foreign key to primary key `airlines$carrier`
+
++ `flights$origin` foreign key to primary key `airports$faa`
+
++ `flights$dest` foreign key to primary key `airports$faa`
+
++ `flights$dest` foreign key to primary key `airports$faa`
+
++ `flights$origin-flights$time_hour` is compound foreign key to primary key `weather$origin-weather$time_hour`
+
+
+### Checking primary keys
+
+How to verify that the "primary key" variable indeed uniquely identifies each observation?
+
+Use `count()` on primary keys and and look for entries where `n` is greater than 1:
+```{r}
+#| label: Identifying and verifying primary key
+
+planes |>
+  count(tailnum) |>
+  filter(n > 1)
+# tailnum indeed primary key
+
+weather |>
+  count(origin, time_hour) |>
+  filter(n > 1)
+# origin and time-hour indeed compound key 
+```
+
+Also check for missing values - if there is a missing value it can NOT identify an observation!:
+```{r}
+#| label: Identifying and verifying primary key, check NA
+
+planes |>
+  filter(is.na(tailnum))
+
+weather |>
+  filter(is.na(origin) | is.na(time_hour))
+```
+
+
+### Surrogate key
+
+Three variables in flight uniquely identify each flight:
+```{r}
+#| label: Identifying and verifying primary key flights df
+
+flights |>
+  count(time_hour, carrier, flight) |>
+  filter(n > 1)
+```
+
+
+Might be better off introducing numeric surrogate key using row number:
+```{r}
+#| label: Surrogate key
+
+flights |>
+  mutate(id = row_number(), .before = 1)
+
+```
+
+Useful when communicating to ther humans: much easier saying to look at flight 2001 instead to look on flight UA430 which departet 9am 2013-01-03.
+
+
+```{r}
+
+weather
+
+airports
+
+```
+
+
+## Basic joins
+
+Six dplyr join functions:
+
++ `left_join()`
++ `right_join()`
++ `inner_join()`
++ `full_join()`
++ `semi_join()`
++ `anti_join()`
+
+Syntax: Take pair of data frames (`x`and`y`) and return data frame.
+Order of rows and columns in output primarly determined by `x`.
+
+
+### Mutating joins
+
+__Mutating joins__ allow combining variables from two data frames - first matches observations by keys, then copies across variables from one data frame to the other (like `mutate()` joins add variables to the right):
+```{r}
+#| label: Narrow dataset
+
+# Narrow dataset for examples
+
+flights2 <- flights |>
+  select(year, time_hour, origin, dest, tailnum, carrier)
+
+flights2
+```
+
+Four types of mutating joins. Almost always use `left_join()` - output will always have same rows as x, i.e., the data frame we're joining to. Primary use - add additional metadata:
+```{r}
+#| label: left_join()
+
+# ?left_join: by = NULL; performs natural join, using all common variables across x and y.
+flights2 |>
+  left_join(airlines) 
+
+# Alternatively, can specify 'by' argument
+flights2 |>
+  left_join(y = airlines, by = "carrier") 
+# airlines$carrier as primary key to foreign key flights$carrier
+```
+
+Can also select within `left_join()` -  only adding colunms we want:
+```{r}
+#| label: left_join() multiple variables
+
+flights |>
+  left_join(weather)
+# Note: ?left_join - if by argument NULL, *_join() performs natural join
+# Message lists variables for us to check
+# Here: "Joining with 'by = join_by(year, time_hour, origin)"
+# join_by() used when joining multiple variables, e.g. join_by(a == b, c == d)
+# If column names same between x and y, list only var name, e.g., join_by(a, c)
+
+# Equivalent:
+flights |>
+  left_join(y = weather, by = join_by(year == year,
+                                      time_hour == time_hour,
+                                      origin == origin))
+# Equivalent:
+flights |>
+  left_join(y = weather, by = join_by(year, time_hour, origin))
+```
+
+```{r}
+#| label: left_join() selecting variables for join from y
+
+# Selecting weather components:
+flights2 |>
+  left_join(weather |> select(origin, time_hour, temp, wind_speed))
+
+# Equivalently
+flights2 |>
+  left_join(y = weather |>
+              select(origin, time_hour, temp, wind_speed),
+            by = join_by(
+                         origin == origin,
+                         time_hour == time_hour)
+            )
+# Note: our keys are now 'origin' and 'time_hour'
+# Resulting in same data frame, as time_hour already 'contains' year
+# Multiple keys possible, but not necessary
+
+# Selecting plane components:
+flights2 |>
+  left_join(planes)
+# Note: Without further selection, joins by tailnum and year
+
+# Equivalently
+flights2 |>
+  left_join(y = planes |>
+              select(tailnum, type, engine, seats), 
+            by = join_by(tailnum == tailnum)
+            )
+# Note: with further selection joins by tailnum only
+
+```
+
+When `left_join()` fails to find match for a row in `x` - fills in new variable with missing values:
+```{r}
+#| label: left_join() fails finding matches for a row in x
+
+flights2 |>
+  filter(tailnum == "N3ALAA") |>
+  left_join(planes |> select(tailnum, type, engine, seats))
+
+```
+
+
+### Specifying join keys
+
+`left_join()` will uses all variables that appear in both data frames as the join key - __natural__ join.
+
+Doesn't always work:
+```{r}
+#| label: Specifying join keys
+
+flights2 |> 
+  left_join(planes)
+# Note: Joining with 'by = join_by(year, tailnum)'
+# Lot of missing values as year and tailnum used as compound key
+
+# flights$year = year flight occured
+# planes$year = year plane was built
+# NOT the same
+
+# Thus need specification:
+flights |>
+  left_join(planes, join_by(tailnum))
+
+```
+
+`year` variables are disambiguated in the output with suffix(`year.x` and `year.y`) - tells us where variables comes from (`x` or `y`). Can override default with `suffix` argument.
+
+`join_by(tailnum)` short for `join_by(tailnum == tailnum)` - Note: This is called an __equi join__ - keys must be equal.
+
+`inner_join()`, `right_join()`, `full_join()` have same interface as `left_join()`. Difference in which row is kept:
++ left join keeps all rows in `x`
++ right join keeps all rows in `y`
++ full join keeps all rows in either `x` or `y`
++ inner join only keeps rows occurring in both `x` and `y`
+
+
+### Filtering joins
+
+Primary action - filtering rows.
+
+Two types:
+
++ __Semi-joins__: keeps all rows in `x` that have match in `y` - do NOT add columns from y:
+```{r}
+#| label: semi_join()
+
+# Filtering airports dataset showing just origin airports
+airports |>
+  semi_join(flights2, join_by(faa == origin))
+
+# Filtering airports dataset showing just destination airports
+airports |>
+  semi_join(flights2, join_by(faa == dest))
+```
+
++ __Anti-join__: return all rows in `x` that don't have match in `y` - useful for finding missing values implicit in data:
+```{r}
+#| label: anti_join()
+
+# Finding airports that are missing from airports but are referenced as destinations in flights2
+flights2 |>
+  anti_join(airports, join_by(dest == faa)) |>
+  distinct(dest)
+
+# Which tailnums are missing from planes
+flights2 |>
+  anti_join(planes, join_by(tailnum)) |>
+  distinct(tailnum)
+```
+
+```{r}
+#| label: Exercises3
+
+# Ex: Find the 48 hours (over the course of the whole year) that have the worst delays. Cross- reference with weather data
+
+worst_hours <- flights |>
+  group_by(origin, time_hour) |>
+  summarise(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    n_flights = n(),
+    .groups = "drop"
+  ) |>
+  slice_max(avg_delay, n = 48)
+
+worst_hours |>
+  left_join(weather, join_by(origin, time_hour)
+  ) |>
+  select(
+    origin,
+    time_hour,
+    avg_delay,
+    n_flights,
+    temp,
+    wind_speed,
+    wind_gust,
+    precip,
+    visib
+  )
+
+# Ex: How can you find all flights to those "top" destinations?
+top_dest <- flights2 |>
+  count(dest, sort = TRUE) |>
+  head(10)
+
+top_dest |> left_join(flights, join_by(dest == dest))
+  # self-join to retrieve flight data
+
+
+# Ex: Every departing flight have corresponding weather data for that hour?
+flights |>
+  anti_join(weather, join_by(origin, time_hour)) |>
+  arrange(time_hour) |>
+  relocate(time_hour, .before = dep_time)
+
+# Ex: Tailnums that dont have a match in planes?
+flights |>
+  anti_join(planes, join_by(tailnum)) |>
+  count(carrier, sort = TRUE) |>
+  mutate(prop = n / sum(n))
+
+# Ex: Add latitude, longitude of origin and destination airport to flights
+flights |>
+  left_join(airports |> select(lat_origin = lat, lon_origin = lon, faa), 
+            join_by(origin == faa)) |>
+  left_join(airports |> select(lat_dest = lat, lon_dest = lon, faa),
+            join_by(dest == faa))
+
+# Ex: Compute average delay by destination; join airports data frame; 
+# show spatial distribution of delays:
+
+flights |>
+  filter(!is.na(dep_delay)) |>
+  summarize(avg_delay = mean(dep_delay), .by = dest) |>
+  left_join(airports, join_by(dest == faa)) |>
+  ggplot(aes(x = lon, y = lat, color = avg_delay)) +
+  borders("state") +
+  geom_point(na.rm = TRUE) +
+  coord_sf()
+
+
+
+```
+
+
+## How do joins work?
+
+Focusing on how each row in `x` matches rows in `y`:
+```{r}
+#| label: Representative data frame
+
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     3, "x3"
+)
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2",
+     4, "y3"
+)
+```
+ 
+ __Inner-join__: Rows retained if and only if the keys are equal!
+```{r}
+#| label: How does inner_join() work
+
+inner_join(x, y)
+```
+ 
+ __Outer-joins__ follow same principle:
+ 
+ Keep observations that appear in at least one of the data frames.
+ Note: Syntax - `*_join(x, y)`
+ __Left-join__: Keeps all observations in `x` - "matches" NA row in `y`, when there is no match.
+ 
+ __Right-join__: Keeps all observations in `y` - "matches" NA row in `x`, when there is no match.
+ 
+ __Full join__: Keeps all observations that appear in `x` and `y`, every row will be included - observations with no match, "match" with NA value.
+ 
+ Joins here are called __equi joins__, where rows match if the keys are equal.
+ 
+ 
+ ### Row matching
+ 
+ Three possible outcomes for a row in `x`:
+ 
+ + Doesn't match anythingm it's dropped
+ + Matches 1 row in `y`, it's preserved
+ + Matches more than 1 row in `y`, it's duplicated once for each match
+ 
+```{r}
+#| label: Matches more than 1 row in y
+
+# Example: matches more than 1 row in y
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     3, "x3"
+)
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2",
+     2, "y3"
+)
+
+inner_join(x, y) # row is duplicated once for each match
+```
+ 
+ 
+ ### Filtering joins
+ 
+ __Semi join__ keeps rows in `x` that have one or more matches in `y`
+ 
+ __Anti join__ keeps rows in `x` that match zero rows in `y`
+ 
+ In both cases only existence of a match is important; doesn't matter how many times it matches. Filtering join never duplicate rows like mutating joins do.
+ 
+ 
+ ## Non-equi joins
+ 
+ __Equi joins__: Joins where the rows match if the `x` key equals the `y` key.
+ As we move away from equi joins, will display keys as they will differ - dplyr keeps both keys with `keep = TRUE`.
+```{r}
+#| label: keep = TRUE argument in inner_join()
+
+x |> inner_join(y, join_by(key == key), keep = TRUE)
+
+# Example: Non-equi join
+# Match whenever x$key greater than or equal to y$key:
+x |> inner_join(y, join_by(key >= key))
+```
+ 
+ Four particular useful types of non-equi join:
+ 
+ __Cross joins__ - match every pair of rows
+ 
+ __Inequality joins__ - use `<`, `<=`, `>`, `>=` instead of `==`
+ 
+ __Rolling joins__ - similar to inequality joins but only find closest match
+ 
+ __Overlap joins__ - special inequality join designed to work with ranges
+ 
+ 
+ ### Cross join
+ 
+Matches everything - useful when generating Cartesian product of rows - ouput has nrow(x) * nrow(y) rows - useful when generating permutations:
+```{r}
+#| label: cross_join()
+
+df <- tibble(name = c("John", "Simon", "Tracy", "Max"))
+df |> cross_join(df) # self-join
+```
+
+
+### Inequality joins
+
+Use `<`, `<=`, `>`, `>=` instead of `==` restricting set of possible matches:
+```{r}
+df <- tibble(id = 1:4, name = c("John", "Simon", "Tracy", "Max"))
+
+df |> inner_join(df, join_by(id < id))
+
+```
+
+
+### Rolling joins
+
+Getting closest row satisfying inequality - by adding `closest()`:
+```{r}
+#| label: Rolling joins 
+
+parties <- tibble(
+  q = 1:4,
+  party = ymd(c("2022-01-10", "2022-04-04", "2022-07-11", "2022-10-03"))
+)
+
+set.seed(123)
+employees <- tibble(
+  name = sample(babynames::babynames$name, 100),
+  birthday = ymd("2022-01-01") + (sample(365, 100, replace = TRUE) - 1)
+)
+employees
+
+# Find the last party date that comes before (or on) their birthday.
+
+employees |> 
+  left_join(parties, join_by(closest(birthday >= party)))
+
+# Problem with this approach: the folks with birthdays before January 10 don’t get a party
+
+employees |> 
+  anti_join(parties, join_by(closest(birthday >= party)))
+
+```
+
+Use Overlapping joins
+
+
+### Overlap joins
+
+Three helpers:
+
++ `between(x, y_lower, y_upper)` is short for `x >= y_lower`, `x <= y_upper`
+
++ `within(x_lower, x_upper, y_lower, y_upper)` is short for `x_lower >= y_lower,` `x_upper <= y_upper`.
+
++ `overlaps(x_lower, x_upper, y_lower, y_upper)` is short for `x_lower <= y_upper`, `x_upper >= y_lower`
+
+```{r}
+#| label: Overlapping joins
+
+parties <- tibble(
+  q = 1:4,
+  party = ymd(c("2022-01-10", "2022-04-04", "2022-07-11", "2022-10-03")),
+  start = ymd(c("2022-01-01", "2022-04-04", "2022-07-11", "2022-10-03")),
+  end = ymd(c("2022-04-03", "2022-07-11", "2022-10-02", "2022-12-31"))
+)
+parties
+
+parties |> 
+  inner_join(parties, join_by(overlaps(start, end, start, end), q < q)) |> 
+  select(start.x, end.x, start.y, end.y)
+
+# fix problem
+
+ parties <- tibble(
+  q = 1:4,
+  party = ymd(c("2022-01-10", "2022-04-04", "2022-07-11", "2022-10-03")),
+  start = ymd(c("2022-01-01", "2022-04-04", "2022-07-11", "2022-10-03")),
+  end = ymd(c("2022-04-03", "2022-07-10", "2022-10-02", "2022-12-31"))
+)
+ 
+ employees |> 
+  inner_join(parties, join_by(between(birthday, start, end)), unmatched = "error")
+
+```
+
