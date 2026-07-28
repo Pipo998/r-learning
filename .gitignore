@@ -56,3 +56,6 @@ _site/
 
 # macOS
 .DS_Store
+
+# Large datasets
+Import/data/

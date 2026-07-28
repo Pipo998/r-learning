@@ -1,0 +1,265 @@
+---
+title: "Arrow"
+subtitle: "R for Data Science (2e), Chapter 22"
+toc: true
+theme: darkly
+format: html
+---
+
+## Introduction
+
+__Parquet format__: open standards-based format used by big data systems.
+
+__Apache Arrow__: Multi-language toolbox designed for efficient analysis and transport of large datasets - `arrow package`, provides dplyr backend, allowing analyzing larger-than-memory datasets using dplyr syntax. 
+
+:::{.callout-note}
+Arrow and dbplyr provide dplyr backend - depending if data is in database or in parquet files. Working with own data, requires either loading in database or converting in parquet file - can do both at first and decide which works best.
+:::
+
+### Prerequisites
+```{r}
+#| label: Prereq
+
+library(tidyverse)
+library(arrow)
+
+# For connections between arrow and duckdb:
+
+library(dbplyr, warn.conflicts = FALSE)
+library(duckdb)
+```
+
+
+## Getting data
+
+Dataset of item checkouts from Seattle public libraries:
+data.seattle.gov/Community/Checkouts-by-Title/tmmm-ytt6
+
+```{r}
+#| label: Downloading data
+
+# Code gets cached copy of data
+# curl::multi_download() used to get very large files
+# gives progress bar and can resume download if interrupted
+
+dir.create("data", showWarnings = FALSE)
+
+curl::multi_download(
+   "https://r4ds.s3.us-west-2.amazonaws.com/seattle-library-checkouts.csv",
+  "data/seattle-library-checkouts.csv",
+  resume = TRUE
+)
+```
+
+Don't want to load lagre file into memory. File is 9GB, memory is 16GB - rule of thumb: We want at least twice as much memory as the size of data. This means we want to avoid `read_csv()` and use `arrow::open_dataset()`:
+```{r}
+#| label: Opening large dataset with arrow
+
+seattle_csv <- open_dataset(
+  sources = "data/seattle-library-checkouts.csv",
+  col_types = schema(ISBN = string()),
+  format = "csv"
+)
+```
+
+What happens:
+`open_dataset()` scan only foirst thousand rows figuring out the structure of the dataset. ISBN columns contain blank values for first 80,000 rows, thus need to specify column type to help arrow wotk out data structure - will read further rows only when requested - that's what we see when printing `seattle_csv`:
+```{r}
+#| label: Inspecting data
+seattle_csv
+
+glimpse(seattle_csv)
+```
+
+Can start using dataset with dplyr verbs - using `collect()` to force arrow to perform the computations and return some data:
+```{r}
+#| label: Example of working with arrow
+
+# Requesting total number of checkouts per year:
+seattle_csv |>
+  group_by(CheckoutYear) |>
+  summarize(Checkouts = sum(Checkouts)) |>
+  arrange(Checkouts) |>
+  collect()
+```
+
+Thanks to arrow this code will work regardless of how large underlying dataset is - BUT rather slow, can be faster by switching to other format.
+
+
+## Parquet format
+
+Switch to parquet file format and split it up into multiple files.
+
+### Advantages of parquet
+
+Parquet is used for rectangular data - it's a custom binary format designed specifically for the needs of big data:
+
++ Parquet files usually smaller than CSV - relies on efficient encodings keeping file size down, and supports compression - making parquet files fast as there's less data to move from disk to memory.
+
++ Rich type system - unlike CSV, parquet files store data in a way that records the type along with the data
+
++ Column-oriented - organized column-byy-column - leading to better performance for data analysis tasks compared to CSV files
+
++ Parqut files are chunked - can work on different part of the file at the same time - and skip chunks if lucky. 
+
+
+### Partitioning
+
+Useful to split large datasets across many files. Avoid size of partitioned files between 20MB and 2GB, and producing more than 10,000 files. Also try partitioning by variables that are filtered by - allowing arrow to skip work by reading only relevant files.
+
+
+### Rewriting the Seattle library data
+
+Partitioning by `CheckoutYear` - since analysis will only look ar recent data - yieldd 18 chunks of reasonable size.
+
+Define partitioning by `dplyr::group_by()`, save partitions to directory with `arrow::write_dataset()`. `write_dataset()` has two arguments: directory where file is created and format:
+
+```{r}
+#| label: partitioning of data using arrow
+
+pq_path <- "data/seattle-library-checkouts"
+
+seattle_csv |>
+  group_by(CheckoutYear) |>
+  write_dataset(path = pq_path, format = "parquet")
+```
+
+Takes time to run, but pays off making future operations faster: 
+
+```{r}
+#| label: Product of partitioning
+
+tibble(
+  files = list.files(pq_path, recursive = TRUE),
+  size_MB = file.size(file.path(pq_path, files)) / 1024^2)
+
+```
+
+Single 9GB file has been rewritten into 18 parquet files. Names use "self-describing" convention used by __Apache Hive__ project - partitions name folders with "key=value". E.g., CheckoutYear=2005 directory contains all the data where CheckoutYear is 2005. Each file between 100 and 300 MB and total size is now 4 GB
+
+
+## Using dplyr with arrow
+
+Need to read in parquet files again - use `open_dataset()`, this time with directory
+```{r}
+#| label: Reading in parquet file via directory and open_dataset()
+
+seattle_pq <- open_dataset(source = pq_path)
+
+# Can write dplyr pipeline
+query <- seattle_pq |>
+  filter(CheckoutYear >= 2018, MaterialType == "BOOK") |>
+  group_by(CheckoutYear, CheckoutMonth) |>
+  summarize(TotalCheckouts = sum(Checkouts)) |>
+  arrange(CheckoutYear, CheckoutMonth)
+
+query
+
+# Can get results calling, collect():
+query |> collect()
+
+```
+List of currently supported functions: `?acero`
+
+### Performance
+
+```{r}
+#| label: Comparing performance between CSV and parquet
+
+seattle_csv |> 
+  filter(CheckoutYear == 2021, MaterialType == "BOOK") |>
+  group_by(CheckoutMonth) |>
+  summarize(TotalCheckouts = sum(Checkouts)) |>
+  arrange(desc(CheckoutMonth)) |>
+  collect() |>
+  system.time()
+
+seattle_pq |>
+  filter(CheckoutYear == 2021, MaterialType == "BOOK") |>
+  group_by(CheckoutMonth) |>
+  summarize(TotalCheckouts = sum(Checkouts)) |>
+  arrange(desc(CheckoutMonth)) |>
+  collect() |>
+  system.time()
+
+```
+
++ Partitioning improves performance as query uses `CheckoutYear == 2021` to filter data - arrow recognizes that it only needs to read 1 of 18 parquet files
+
++ Parquet format improves performance by storing data in binary form and having column-wise format, reading only the four columns used in the query (`CheckoutYear`, `MaterialType`, `CheckoutMonth`, and `Checkouts`).
+
+This massive difference in performance is why it pays off to convert large CSVs to parquet!
+
+
+### Using duckdb with arrow
+
+Other advantage of using parquet and arrow - can turn an arrow dataset into a DuckDB dataset by calling `arrow::to_duckdb()`:
+```{r}
+seattle_pq |>
+  to_duckdb() |>
+  filter(CheckoutYear >= 2018, MaterialType == "BOOK") |>
+  group_by(CheckoutYear) |>
+  summarize(TotalCheckouts = sum(Checkouts)) |>
+  arrange(desc(CheckoutYear)) |>
+  collect()
+```
+
+Thing about `to_duckdb()` - transfer doesn't involve any memory copying. 
+
+### Exercise
+
+```{r}
+#| label: Exercises
+
+# Ex1: Most popular book each year?
+seattle_pq |>
+  to_duckdb() |>
+  filter(MaterialType == "BOOK") |>
+  group_by(CheckoutYear, Title) |>
+  summarize(n_checkout = sum(Checkouts)) |> # by default, .groups = "drop_last", thus after this operation still grouped by CheckoutYear, and slice_max looks within each group!
+  slice_max(order_by = n_checkout,  n = 1) |>
+  ungroup() |>
+  arrange(desc(CheckoutYear)) |>
+  collect()
+ 
+# Alternatively
+seattle_pq |>
+  to_duckdb() |>
+  filter(MaterialType == "BOOK") |>
+  group_by(CheckoutYear, Title) |>
+  summarize(n_checkouts = sum(Checkouts), .groups = "drop") |>
+  group_by(CheckoutYear) |>
+  slice_max(order_by = n_checkouts, n = 1) |>
+  ungroup() |>
+  arrange(desc(CheckoutYear)) |>
+  collect()
+
+
+# Ex2: Which author has the most books in the Seattle library system?
+seattle_pq |>
+  to_duckdb() |>
+  filter(MaterialType == "BOOK", Creator != "") |>
+  count(Creator, sort = TRUE) |>
+  slice_max(n, n = 1) |>
+  collect()
+
+
+# Ex3: How has checkouts of books vs ebooks changed over last 10 years?
+
+seattle_pq |> 
+  filter(MaterialType %in% c("BOOK", "EBOOK"), CheckoutYear >= 2013) |>
+  group_by(MaterialType, CheckoutYear, CheckoutMonth) |>
+  summarize(total_checkouts = sum(Checkouts)) |>
+  arrange(CheckoutYear, CheckoutMonth) |>
+  mutate(
+    date = make_date(CheckoutYear, CheckoutMonth)
+  ) |>
+  collect() |>
+  ggplot(
+    mapping = aes(x = date, y = total_checkouts, color = MaterialType)
+  ) +
+  geom_point(position = "jitter") +
+  geom_smooth(method = "loess")
+
+```
+
