@@ -85,6 +85,8 @@ website:
           - href: Import/arrow.qmd
             text: Arrow
             
+          - href: Import/hierarchical-data.qmd
+            text: Hierarchical Data
 format:
   html:
     theme: darkly

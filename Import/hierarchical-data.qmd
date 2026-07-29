@@ -1,0 +1,493 @@
+---
+title: "Hierarchical data"
+subtitle: "R for Data Science (2e), Chapter 23"
+toc: true
+theme: darkly
+format: html
+---
+
+## Introduction
+
+**Data rectangling** - taking data that is hierarchical, or tree-like, and converting it into rectangular data frame made up from rows and columns.
+
+Two crucial functions:
+
+- `tidyr::unnest_longer` and `tidyr::unnest_wider`
+
+### Prerequisites
+
+```{r}
+#| label: Prereq
+
+library(tidyverse)
+library(repurrrsive) # Example datasets for reactangling practice
+library(jsonlite) # reading JSON files into R lists
+```
+
+## Lists
+
+simple vectors like integers, numbers, characters, date-times, and factors - homogeneous, i.e., every element is of the same data type.
+
+Lists $\rightarrow$ stores elements of different types in the same vector - created by `list()`.
+
+```{r}
+#| label: Creating lists
+
+x1 <- list(1:4, "a", TRUE)
+x1
+
+# Can name the components of a list, either by names(x) <- c("name") or:
+x2 <- list(a = 1:2, b = 1:3, c = 1:4)
+x2
+
+# Useful alternative to display list - inspecting trough str():
+str(x1)
+str(x2)
+```
+
+## Hierarchy
+
+```{r}
+#| label: List within a nest
+#| eval: false
+x3 <- list(list(1, 2), list(3, 4))
+x3
+str(x3)
+
+# Different to using c() - which generates flat vector:
+x4 <- c(list(1, 2), list(3, 4))
+x4
+str(x4)
+
+# str() allows us - with more complex lists - to understand the hierarchy:
+x5 <- list(1, list(2, list(4, list(4, list(5)))))
+x5
+str(x5)
+
+# With list getting more complex - str() fails - use View():
+View(x5)
+```
+
+### List-columns
+
+Lists can live within tibbles - **list-columns**.
+
+USeful when placing objects in tibbles usually not belonging in there - used in tidymodels storing things liek model output or resamples in data frame.
+
+```{r}
+#| label: List-columns
+
+df <- tibble(
+  x = 1:2,
+  y = c("a", "b"),
+  z = list(list(1, 2 ), list(3, 4, 5))
+)
+
+df
+
+# Column-lists still behave like any other column:
+df |>
+  filter(x == 1)
+```
+
+## Unnesting
+
+Turning column-lists back into regular rows and columns - usually two basic forms of list-columns: named and unnamed
+
+```{r}
+#| label: named and unnamed column-lists
+
+# Named list-columns:
+# Usually same name in every row
+# Unnesting - each named element becomes new named column
+df1 <- tribble(
+  ~x, ~y,
+  1, list(a = 11, b = 12),
+  2, list(a = 21, b = 22),
+  3, list(a = 31, b = 32),
+)
+
+# Unnamed list-columns:
+# Number of elements tend to vary from row-to-row
+# Unnesting - unnest into rows - one row per observation
+df2 <- tribble(
+  ~x, ~y,
+  1, list(11, 12, 13),
+  2, list(21),
+  3, list(31, 32),
+)
+```
+
+Two functions for these two cases: `unnest_wider()` and `unnest_longer()`
+
+### unnest_wider()
+
+Each row has same number of elements with the same names - put each component into own column with `unnest_wider()`:
+
+- names of new columns come from names of the list elements - can also use `names_sep` argument to distinguish column x from y:
+
+```{r}
+#| label: unnest_wider()
+
+df1 |>
+  unnest_wider(col = y)
+
+# Using names_sep():
+df1 |>
+  unnest_wider(col = y, names_sep = "_") # avoiding ambiguating by repeating names
+```
+
+### unnest_longer
+
+Each row contains an unnamed list - almost natural to put elements into its own row with `unnest_longer()`:
+
+```{r}
+#| label: unnest_longer()
+
+df2 |>
+  unnest_longer(col = y)
+```
+
+Note, `x` is duplicated for each element inside of `y` - one row of output for each element inside the list-column:
+
+```{r}
+#| label: unnest_longer() with empty element
+
+df6 <- tribble(
+  ~x, ~y,
+  "a", list(1, 2),
+  "b", list(3),
+  "c", list()
+)
+
+df6 |>
+  unnest_longer(col = y) # Row disappears when element is empty
+
+# Can keep empty element by keep_empty = TRUE
+df6 |>
+  unnest_longer(col = y, keep_empty = TRUE)
+```
+
+### Inconsistent types
+
+Unnesting list-columns containing different types of vector:
+
+```{r}
+#| label: Unnesting lists w different types
+
+df4 <- tribble(
+  ~x, ~y,
+  "a", list(1),
+  "b", list("a", TRUE, 5)
+)
+
+df4 |>
+  unnest_longer(y)
+
+```
+
+Output contains a list-column - every element of the list-column contains a single element - `unnest_longer()` can't find common typeof vector, thus keeps original in a list-column. Note: Every element in this column is a list, even though contents of different types. See chapter 26 for dealing with inconsistent types.
+
+### Other functions
+
+- `unnest_auto()`: automatically picks between `unnest_longer()` and `unnest_wider()`
+
+- `unnest()`: unnests both rows and columns - useful with list-column containing 2d structure like a data frame.
+
+### Exercise
+
+```{r}
+#| label: Exercises
+
+# Ex1: What happens when you use unnest_wider() with unnamed list-columns like df2? 
+# What argument is now necessary?
+df2 |>
+  unnest_wider(y, names_sep = "_")
+
+# Ex2: What happens when you use unnest_longer() with named list-columns like df1?
+# What additional information do you get in the output?
+# How can you suppress that extra detail?
+df1 |>
+  unnest_longer(y) # get extra column y_id containing of elements inside each list
+
+df1 |>
+  unnest_longer(y, indices_include = FALSE)
+
+df1 |>
+  unnest_longer(y) |>
+  pivot_wider(names_from = "y_id", values_from = "y")
+
+# Ex3: 
+df4 <- tribble(
+  ~x, ~y, ~z,
+  "a", list("y-a-1", "y-a-2"), list("z-a-1", "z-a-2"),
+  "b", list("y-b-1", "y-b-2", "y-b-3"), list("z-b-1", "z-b-2", "z-b-3")
+)
+
+df4 |> unnest_longer(y) |> unnest_longer(z)
+# How to preserve relationship:
+df4 |> unnest_longer(col = c(y, z))
+```
+
+## JSON
+
+JSON (**JavaScript Object Notation**) is the standard format used by most web APIs to exchange data. It maps closely to R objects, although there is no perfect 1-to-1 correspondence.
+
+### JSON data types
+
+- `null` → `NA`
+- **String** → character
+- **Number** → numeric/integer (`Inf`, `-Inf`, and `NaN` are not supported)
+- **Boolean** → `TRUE` / `FALSE` (`true` / `false` in JSON)
+- **Array** (`[]`) → **unnamed list** in R
+- **Object** (`{}`) → **named list** in R
+
+::: callout-note
+JSON has **no native date or datetime type**. Dates are usually stored as character strings and should be converted using `readr::parse_date()` or `readr::parse_datetime()`.
+:::
+
+### `jsonlite`
+
+The **jsonlite** package provides two main functions for working with JSON:
+
+- `read_json()` – reads a JSON file from disk.
+- `parse_json()` – parses a JSON string into R objects.
+
+`fromJSON()` is another commonly used function, but it automatically simplifies nested structures (`simplifyVector = TRUE`). For learning how to work with nested data, `parse_json()` is preferred because it preserves the original structure.
+
+```{r}
+#| label: JSON examples
+
+library(jsonlite)
+
+# Scalar
+str(parse_json("1"))
+
+# Array -> unnamed list
+str(parse_json("[1, 2, 3]"))
+
+# Object -> named list
+str(parse_json('{"x": [1, 2, 3]}'))
+```
+
+## Top-level JSON structures
+
+### 1. Top-level array
+
+Each element represents an observation.
+
+```{r}
+#| label: Top-level array
+
+json <- '[
+  {"name": "John", "age": 34},
+  {"name": "Susan", "age": 27}
+]'
+
+tibble(json = parse_json(json))
+```
+
+Result:
+
+- 2 rows
+- each row is one observation stored as a named list
+
+### 2. Top-level object
+
+The entire JSON is one object that contains other fields.
+
+Since `parse_json()` returns a **single named list**, wrap it in `list()` before creating a tibble:
+
+```{r}
+#| label: Top-level array contd
+
+json <- '{
+  "status": "OK", 
+  "results": [
+    {"name": "John", "age": 34},
+    {"name": "Susan", "age": 27}
+ ]
+}
+'
+
+tibble(json = list(parse_json(json)))
+```
+
+This creates a tibble with **one row**, where the JSON object is stored in a single list-column.
+
+## Rectangling nested JSON
+
+A typical workflow is:
+
+1.  Parse the JSON using `parse_json()`.
+2.  Determine whether the top level is an **array** or an **object**.
+3.  Explore the structure using `unnest_longer()` and `unnest_wider()`.
+4.  Once the path to the desired component is known, use `hoist()` to extract it directly.
+5.  Convert character variables (e.g., dates or numbers) to their appropriate R types if necessary.
+
+### Common tidyr functions
+
+| Function | Purpose |
+|--------------------------------------|----------------------------------|
+| `unnest_longer()` | Turns list elements into **rows** (for arrays). |
+| `unnest_wider()` | Turns named list elements into **columns** (for objects). |
+| `hoist()` | Extracts specific nested components without unnesting everything. |
+
+::: callout-tip
+**Rule of thumb**
+
+- **Array (`[]`)** → use `unnest_longer()`
+- **Object (`{}`)** → use `unnest_wider()`
+- **Known path to a nested value** → use `hoist()`
+:::
+
+## Starting the rectangling process
+
+When working with JSON, the first step depends on the **top-level structure**.
+
+### Case 1: Top-level array (`[]`)
+
+A top-level array usually represents **multiple observations**. After parsing, each element becomes one row of a tibble.
+
+```{r}
+#| label: Top-level array contd2
+
+
+json <- '[
+  {"name": "John", "age": 34},
+  {"name": "Susan", "age": 27}
+]'
+
+df <- tibble(json = parse_json(json))
+
+df
+```
+
+Expand each named list into columns:
+
+```{r}
+#| label: Top-level array - contd
+df |>
+  unnest_wider(json)
+```
+
+Result:
+
+- Each JSON object becomes **one row**.
+- `unnest_wider()` extracts the fields (`name`, `age`) into columns.
+
+------------------------------------------------------------------------
+
+### Case 2: Top-level object (`{}`)
+
+Sometimes the entire JSON is a **single object** containing metadata and the actual data.
+
+```{r}
+#| label: Top-level array - "single" object
+
+
+json <- '{
+  "status": "OK",
+  "results": [
+    {"name": "John", "age": 34},
+    {"name": "Susan", "age": 27}
+  ]
+}'
+
+df <- tibble(json = list(parse_json(json)))
+
+df
+```
+
+Since the parsed JSON is **one named list**, wrap it in `list()` before creating the tibble.
+
+Extract the nested observations:
+
+```{r}
+#| label: Top-level array - "single" object contd
+
+json <- '{
+  "status": "OK",
+  "results": [
+    {"name": "John", "age": 34},
+    {"name": "Susan", "age": 27}
+  ]
+}'
+
+
+df |>
+  unnest_wider(json) |>
+  unnest_longer(results) |>
+  unnest_wider(results)
+```
+
+Result:
+
+- `status` is repeated for each observation.
+- `results` is an array, so `unnest_longer()` creates one row per element.
+- Each result is a named list, so `unnest_wider()` converts its fields into columns.
+
+------------------------------------------------------------------------
+
+### Extract only the component you need
+
+If you're only interested in a nested component, you can access it directly before creating the tibble:
+
+```{r}
+#| label: Extract only the component you need
+
+json <- '{
+  "status": "OK",
+  "results": [
+    {"name": "John", "age": 34},
+    {"name": "Susan", "age": 27}
+  ]
+}'
+
+
+df <- tibble(results = parse_json(json)$results)
+
+df |>
+  unnest_wider(results)
+```
+
+This avoids carrying along unnecessary metadata (e.g., `status`) and is often the cleanest approach.
+
+::: callout-tip
+**Rule of thumb**
+
+- Top-level **array (`[]`)** → `tibble(json = parse_json(json))`
+- Top-level **object (`{}`)** → `tibble(json = list(parse_json(json)))`
+- If you only need one nested component, extract it first (e.g. `parse_json(json)$results`).
+:::
+
+
+### Exercises
+```{r}
+#| label: Rectangling exercise
+
+json_col <- parse_json('
+  {
+    "x": ["a", "x", "z"],
+    "y": [10, null, 3]
+  }
+')
+json_row <- parse_json('
+  [
+    {"x": "a", "y": 10},
+    {"x": "x", "y": null},
+    {"x": "z", "y": 3}
+  ]
+')
+
+df_col <- tibble(json = list(json_col)) 
+df_row <- tibble(json = json_row)
+
+df_col |>
+  unnest_wider(json) |>
+  unnest_longer(c(x, y))
+
+df_row |>
+  unnest_wider(json) 
+```
+
