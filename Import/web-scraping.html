@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Web Scraping – R Learning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-c5f59b4f86c26fcab912b02729bcd7e4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">R Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../visualize.html"> 
+<span class="menu-text">Visualization</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../transform.html"> 
+<span class="menu-text">Transformation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../import.html"> 
+<span class="menu-text">Import</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../import.html">Import</a></li><li class="breadcrumb-item"><a href="../Import/web-scraping.html">Web scraping</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../visualize.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data visualization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Visualize/exploratory-data-analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exploratory Data Analysis</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Visualize/communication.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Communication</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Visualize/facets.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Facets</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Visualize/statistical-transformation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Statistical Transformation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Visualize/position-adjustment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Position Adjustment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Visualize/the-layered-grammar-of-graphics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Layered Grammar of Graphics</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../transform.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Transform/logical-vectors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logical Vectors</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Transform/numbers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Numbers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Transform/strings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Strings</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Transform/regular-expressions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regular Expressions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Transform/factors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Factors</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Transform/dates-and-times.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Date and times</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Transform/missing-values.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Missing values</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Transform/joins.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Joins</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../import.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Import</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Import/spreadsheets.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Spreadsheets</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Import/databases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Import/arrow.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Arrow</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Import/hierarchical-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical Data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Import/web-scraping.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Web scraping</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  </ul></li>
+  <li><a href="#scraping-ethics-and-legalities" id="toc-scraping-ethics-and-legalities" class="nav-link" data-scroll-target="#scraping-ethics-and-legalities">Scraping ethics and legalities</a>
+  <ul class="collapse">
+  <li><a href="#terms-of-service" id="toc-terms-of-service" class="nav-link" data-scroll-target="#terms-of-service">Terms of service</a></li>
+  <li><a href="#personally-identifiable-information" id="toc-personally-identifiable-information" class="nav-link" data-scroll-target="#personally-identifiable-information">Personally identifiable information</a></li>
+  <li><a href="#copyright" id="toc-copyright" class="nav-link" data-scroll-target="#copyright">Copyright</a></li>
+  </ul></li>
+  <li><a href="#html-basics" id="toc-html-basics" class="nav-link" data-scroll-target="#html-basics">HTML basics</a>
+  <ul class="collapse">
+  <li><a href="#elements" id="toc-elements" class="nav-link" data-scroll-target="#elements">Elements</a></li>
+  <li><a href="#attributes" id="toc-attributes" class="nav-link" data-scroll-target="#attributes">Attributes</a></li>
+  </ul></li>
+  <li><a href="#extracting-data" id="toc-extracting-data" class="nav-link" data-scroll-target="#extracting-data">Extracting data</a>
+  <ul class="collapse">
+  <li><a href="#find-elements" id="toc-find-elements" class="nav-link" data-scroll-target="#find-elements">Find elements</a></li>
+  <li><a href="#nesting-selections" id="toc-nesting-selections" class="nav-link" data-scroll-target="#nesting-selections">Nesting selections</a></li>
+  <li><a href="#text-and-attributes" id="toc-text-and-attributes" class="nav-link" data-scroll-target="#text-and-attributes">Text and attributes</a></li>
+  <li><a href="#tables" id="toc-tables" class="nav-link" data-scroll-target="#tables">Tables</a></li>
+  </ul></li>
+  <li><a href="#finding-right-selector" id="toc-finding-right-selector" class="nav-link" data-scroll-target="#finding-right-selector">Finding right selector</a></li>
+  <li><a href="#putting-it-all-together" id="toc-putting-it-all-together" class="nav-link" data-scroll-target="#putting-it-all-together">Putting it all together</a>
+  <ul class="collapse">
+  <li><a href="#star-wars" id="toc-star-wars" class="nav-link" data-scroll-target="#star-wars">Star Wars</a></li>
+  <li><a href="#imdb-top-films" id="toc-imdb-top-films" class="nav-link" data-scroll-target="#imdb-top-films">IMDB top films</a></li>
+  <li><a href="#dynamic-websites" id="toc-dynamic-websites" class="nav-link" data-scroll-target="#dynamic-websites">Dynamic websites</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../import.html">Import</a></li><li class="breadcrumb-item"><a href="../Import/web-scraping.html">Web scraping</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Web Scraping</h1>
+<p class="subtitle lead">R for Data Science (2e), Chapter 24</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Basics of web scraping with <code>rvest</code> - extracting data from web pages. Some pages offer API, set of structured HTTP requests that return data as JSON (See chapter 23). Scraping works whether or not site provides an API.</p>
+<section id="prerequisites" class="level3">
+<h3 class="anchored" data-anchor-id="prerequisites">Prerequisites</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.2.1     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'rvest'
+
+The following object is masked from 'package:readr':
+
+    guess_encoding</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="scraping-ethics-and-legalities" class="level2">
+<h2 class="anchored" data-anchor-id="scraping-ethics-and-legalities">Scraping ethics and legalities</h2>
+<p>Legalities depends on where you live. If the data is public, non-personal, and factual - likely to be ok.</p>
+<p>If the data isn’t public, non-personal, or factual or you’re scraping the data specifically to make money with it - need to talk to a lawyer.</p>
+<section id="terms-of-service" class="level3">
+<h3 class="anchored" data-anchor-id="terms-of-service">Terms of service</h3>
+<ul>
+<li>Many websites include <strong>Terms of Service (ToS)</strong> that may prohibit web scraping.</li>
+<li>Companies often make <strong>broad legal claims</strong>, so these terms should be read critically.</li>
+<li><strong>In the US:</strong>
+<ul>
+<li>Simply posting ToS on a website is usually <strong>not enough</strong> to legally bind users.</li>
+<li>Users are generally bound only after an <strong>explicit action</strong>, such as creating an account or accepting the terms.</li>
+<li>Publicly accessible data (no account required) is therefore less likely to be subject to binding ToS.</li>
+</ul></li>
+<li><strong>In Europe:</strong>
+<ul>
+<li>Courts have been more willing to <strong>enforce ToS</strong>, even without explicit user agreement.</li>
+</ul></li>
+<li>When scraping, always consider both the website’s ToS and the legal jurisdiction.</li>
+</ul>
+</section>
+<section id="personally-identifiable-information" class="level3">
+<h3 class="anchored" data-anchor-id="personally-identifiable-information">Personally identifiable information</h3>
+<ul>
+<li>Be very cautious when scraping <strong>personally identifiable information (PII)</strong> (e.g., names, emails, phone numbers, birth dates).</li>
+<li><strong>GDPR</strong> and other privacy laws, especially in Europe, impose strict rules on collecting and storing personal data.</li>
+<li>Publicly available data is <strong>not automatically ethical or legal</strong> to scrape and publish.</li>
+<li>Example: Researchers released public OkCupid user data without anonymization, leading to widespread ethical criticism.</li>
+<li>If scraping PII, ensure compliance with privacy laws and follow ethical research practices, including anonymization where appropriate.</li>
+</ul>
+</section>
+<section id="copyright" class="level3">
+<h3 class="anchored" data-anchor-id="copyright">Copyright</h3>
+<ul>
+<li><strong>Facts are generally not protected by copyright</strong>, so scraping factual data is usually permissible.</li>
+<li><strong>Original creative works</strong> (e.g., text, images, books, music) are protected by copyright.</li>
+<li><strong>Europe</strong> additionally protects databases through a separate <strong>database (“sui generis”) right</strong>.</li>
+<li>Example: A recipe’s <strong>ingredients and instructions</strong> are not copyrightable, but accompanying original text is.</li>
+<li><strong>Fair use</strong> may allow limited scraping of copyrighted content, especially for <strong>research or non-commercial purposes</strong>, if only the necessary content is collected.</li>
+</ul>
+</section>
+</section>
+<section id="html-basics" class="level2">
+<h2 class="anchored" data-anchor-id="html-basics">HTML basics</h2>
+<p><strong>HTML - HyperText Markup Language</strong> - describes web pages.</p>
+<pre><code>&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Page title&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1 id='first'&gt;A heading&lt;/h1&gt;
+  &lt;p&gt;Some text &amp;amp; &lt;b&gt;some bold text.&lt;/b&gt;&lt;/p&gt;
+  &lt;img src='myimg.png' width='100' height='100'&gt;
+&lt;/body&gt;</code></pre>
+<p>Hierarchical structure - formed by <strong>elements</strong>: Consist of start tag (e.g., <code>&lt;tag&gt;</code>), optional <strong>attributes</strong> (<code>ìd='first'</code>), an end tag (like <code>&lt;/tag&gt;</code>), <strong>contents</strong> (everything in between the start and end tag).</p>
+<p>Can’t write directly <code>&lt;</code> and <code>&gt;</code> directly - use HTML <strong>escapes</strong> <code>&amp;gt</code> (greater than) and <code>&amp;lt</code> (less than) - use <code>&amp;amp</code> for literal <code>&amp;</code>.</p>
+<section id="elements" class="level3">
+<h3 class="anchored" data-anchor-id="elements">Elements</h3>
+<p>Most important:</p>
+<ul>
+<li><p>HTML page must be in</p>
+
+<p>element, and must have two components:</p>
+
+<ul>
+<li><p>contains document metadata, e.g., page title, and</p>
+
+<ul>
+<li>contains content seen in the browser.</li>
+</ul></li>
+</ul></li>
+<li><p>Block tags - e.g.,</p>
+<h1>
+<p>(heading 1),</p>
+<section>
+<p>(section),</p>
+<p>
+</p><p>(paragraph),</p>
+<ol>
+<p>(ordered list) form overall structure of the page.</p>
+<li><p>Inline tags - <b> (bold), <i> (italics), <a> (link) format text inside block tags.</a></i></b></p></li><b><i><a>
+</a></i></b></ol></section></h1></li></ul><b><i><a>
+<p>See HTML guides: MDN Web Docs</p>
+<p>Most elements can have content in between start and end tags - content can either be text or more elements (children are the elements it contains, <code>&lt;p&gt;</code> element has one child, the <code>&lt;b&gt;</code> element):</p>
+<pre><code>&lt;p&gt;
+  Hi! My &lt;b&gt;name&lt;/b&gt; is Hadley.
+&lt;/p&gt;</code></pre>
+</a></i></b></section><b><i><a>
+<section id="attributes" class="level3">
+<h3 class="anchored" data-anchor-id="attributes">Attributes</h3>
+<ul>
+<li>HTML tags can contain <strong>attributes</strong> (e.g., <code>id</code>, <code>class</code>, <code>href</code>, <code>src</code>) that provide additional information.</li>
+<li><strong><code>id</code></strong> and <strong><code>class</code></strong> are commonly used for CSS styling and are useful for selecting elements when scraping.</li>
+<li><strong><code>href</code></strong> stores the destination URL of links (<code>&lt;a&gt;</code> tags).</li>
+<li><strong><code>src</code></strong> stores the source URL of embedded resources, such as images (<code>&lt;img&gt;</code> tags).</li>
+</ul>
+</section>
+</a></i></b></section><b><i><a>
+</a><section id="extracting-data" class="level2"><a>
+<h2 class="anchored" data-anchor-id="extracting-data">Extracting data</h2>
+<ul>
+<li>URL of page to be scraped is needed - can be copied from web browser</li>
+<li>Read HTML for page into R via <code>read_html()</code> - returns <code>xml_document</code> - can than be manipulated using <strong>rvest</strong> functions</li>
+</ul>
+</a><div class="cell"><a>
+</a><div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><a></a><pre class="sourceCode r code-with-copy"><a><code class="sourceCode r"><span id="cb7-1"></span></code></a><code class="sourceCode r"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>html <span class="ot">&lt;-</span> <span class="fu">read_html</span>(<span class="st">"http://rvest.tidyverse.org/"</span>)
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>html</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{html_document}
+&lt;html lang="en"&gt;
+[1] &lt;head&gt;\n&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8 ...
+[2] &lt;body&gt;\n    &lt;a href="#container" class="visually-hidden-focusable"&gt;Skip t ...</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Can also write HTML inline:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>html <span class="ot">&lt;-</span> <span class="fu">minimal_html</span>(<span class="st">"</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">                     &lt;p&gt;This is a paragraph&lt;/p&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st">                     &lt;ul&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="st">                     &lt;li&gt;This is a bulleted list&lt;/li&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">                     &lt;/ul&gt;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="st">                     "</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>html</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{html_document}
+&lt;html&gt;
+[1] &lt;head&gt;\n&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8 ...
+[2] &lt;body&gt;\n&lt;p&gt;This is a paragraph&lt;/p&gt;\n                     &lt;ul&gt;\n&lt;li&gt;This i ...</code></pre>
+</div>
+</div>
+<p>Extracting data now requires CSS selectors - allow to identify elements of interest - and rvest functions used to extract data from them. HTML tables have special tools.</p>
+<section id="find-elements" class="level3">
+<h3 class="anchored" data-anchor-id="find-elements">Find elements</h3>
+<p><strong>CSS</strong> - cascading style sheets - tool to define visual styling of HTML docs.</p>
+<p><strong>CSS selectors</strong> - language for selecting elements on a page. <span class="math inline">\(\rightarrow\)</span> define patterns for locating HTML elements.</p>
+<p>Most important: + <code>p</code> selects all <code>&lt;p&gt;</code> elements. + <code>.title</code> selects all elements with <code>class</code> “title”. + <code>#title</code> selects <code>id</code> elements equaling “title” - unique, thus only one element will be selected.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>html <span class="ot">&lt;-</span> <span class="fu">minimal_html</span>(<span class="st">"</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;h1&gt;This is a heading&lt;/h1&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;p id='first'&gt;This is a paragraph&lt;/p&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;p class='important'&gt;This is an important paragraph&lt;/p&gt;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># use html_elements() to find all elements that match the selector:</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>html <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">"p"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{xml_nodeset (2)}
+[1] &lt;p id="first"&gt;This is a paragraph&lt;/p&gt;
+[2] &lt;p class="important"&gt;This is an important paragraph&lt;/p&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>html <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">".important"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{xml_nodeset (1)}
+[1] &lt;p class="important"&gt;This is an important paragraph&lt;/p&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>html <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">"#first"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{xml_nodeset (1)}
+[1] &lt;p id="first"&gt;This is a paragraph&lt;/p&gt;</code></pre>
+</div>
+</div>
+<p><code>html_element()</code> - returns same number of outputs as input - applied to whole document will return first match:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>html <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">"p"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{html_node}
+&lt;p id="first"&gt;</code></pre>
+</div>
+</div>
+<p>Selector that doesn’t match any elements: + <code>html_element()</code> - returns missing value + <code>html_elements()</code> - returns vector of length 0</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>html <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">"b"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{xml_missing}
+&lt;NA&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>html <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">"b"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{xml_nodeset (0)}</code></pre>
+</div>
+</div>
+</section>
+<section id="nesting-selections" class="level3">
+<h3 class="anchored" data-anchor-id="nesting-selections">Nesting selections</h3>
+<p>In most cases, use <code>html_elements()</code> and <code>html_element()</code> together - using <code>html_elements()</code> to identify elements that will become observations then using <code>html_element()</code> to find elements that will become variables.</p>
+<p>Example: unordered list (<code>&lt;ul&gt;</code>) where each list item (<code>&lt;li&gt;</code>) contains some information about four characters from StarWars:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>html <span class="ot">&lt;-</span> <span class="fu">minimal_html</span>(<span class="st">"</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;ul&gt;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;li&gt;&lt;b&gt;C-3PO&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class='weight'&gt;167 kg&lt;/span&gt;&lt;/li&gt;</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;li&gt;&lt;b&gt;R4-P17&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt;&lt;/li&gt;</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;li&gt;&lt;b&gt;R2-D2&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class='weight'&gt;96 kg&lt;/span&gt;&lt;/li&gt;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;li&gt;&lt;b&gt;Yoda&lt;/b&gt; weighs &lt;span class='weight'&gt;66 kg&lt;/span&gt;&lt;/li&gt;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;/ul&gt;</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="st">  "</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>characters <span class="ot">&lt;-</span> html <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">"li"</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>characters</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{xml_nodeset (4)}
+[1] &lt;li&gt;\n&lt;b&gt;C-3PO&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class="weight"&gt;167 ...
+[2] &lt;li&gt;\n&lt;b&gt;R4-P17&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt;\n&lt;/li&gt;
+[3] &lt;li&gt;\n&lt;b&gt;R2-D2&lt;/b&gt; is a &lt;i&gt;droid&lt;/i&gt; that weighs &lt;span class="weight"&gt;96  ...
+[4] &lt;li&gt;\n&lt;b&gt;Yoda&lt;/b&gt; weighs &lt;span class="weight"&gt;66 kg&lt;/span&gt;\n&lt;/li&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>characters <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">"b"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{xml_nodeset (4)}
+[1] &lt;b&gt;C-3PO&lt;/b&gt;
+[2] &lt;b&gt;R4-P17&lt;/b&gt;
+[3] &lt;b&gt;R2-D2&lt;/b&gt;
+[4] &lt;b&gt;Yoda&lt;/b&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>characters <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">".weight"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{xml_nodeset (4)}
+[1] &lt;span class="weight"&gt;167 kg&lt;/span&gt;
+[2] NA
+[3] &lt;span class="weight"&gt;96 kg&lt;/span&gt;
+[4] &lt;span class="weight"&gt;66 kg&lt;/span&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lose connection between names and weigts:</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>characters <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">".weight"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{xml_nodeset (3)}
+[1] &lt;span class="weight"&gt;167 kg&lt;/span&gt;
+[2] &lt;span class="weight"&gt;96 kg&lt;/span&gt;
+[3] &lt;span class="weight"&gt;66 kg&lt;/span&gt;</code></pre>
+</div>
+</div>
+<p>Note - after applying <code>html_elements()</code> first, <code>html_element()</code> return one response per element.</p>
+</section>
+<section id="text-and-attributes" class="level3">
+<h3 class="anchored" data-anchor-id="text-and-attributes">Text and attributes</h3>
+<p>After selecting elements of interest - need to extract data, either from text contents or some attributes.</p>
+<p><code>html_text2()</code> - extracts plain text contents of HTML element:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>characters <span class="sc">|&gt;</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">"b"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "C-3PO"  "R4-P17" "R2-D2"  "Yoda"  </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>characters <span class="sc">|&gt;</span> </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">".weight"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "167 kg" NA       "96 kg"  "66 kg" </code></pre>
+</div>
+</div>
+<p><code>html_attr()</code> - extracts data from attributes - always returns string:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>html <span class="ot">&lt;-</span> <span class="fu">minimal_html</span>(<span class="st">"</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;p&gt;&lt;a href='https://en.wikipedia.org/wiki/Cat'&gt;cats&lt;/a&gt;&lt;/p&gt;</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;p&gt;&lt;a href='https://en.wikipedia.org/wiki/Dog'&gt;dogs&lt;/a&gt;&lt;/p&gt;</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>html <span class="sc">|&gt;</span> </span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="st">"p"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">"a"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_attr</span>(<span class="st">"href"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "https://en.wikipedia.org/wiki/Cat" "https://en.wikipedia.org/wiki/Dog"</code></pre>
+</div>
+</div>
+</section>
+<section id="tables" class="level3">
+<h3 class="anchored" data-anchor-id="tables">Tables</h3>
+<p>HTML tables are built up from four main elements: <code>&lt;table&gt;</code>, <code>&lt;tr&gt;</code> (table row), <code>&lt;th&gt;</code> (table heading), and <code>&lt;td&gt;</code> (table data):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>html <span class="ot">&lt;-</span> <span class="fu">minimal_html</span>(<span class="st">"</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;table class='mytable'&gt;</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;tr&gt;&lt;th&gt;x&lt;/th&gt;   &lt;th&gt;y&lt;/th&gt;&lt;/tr&gt;</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;tr&gt;&lt;td&gt;1.5&lt;/td&gt; &lt;td&gt;2.7&lt;/td&gt;&lt;/tr&gt;</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;tr&gt;&lt;td&gt;4.9&lt;/td&gt; &lt;td&gt;1.3&lt;/td&gt;&lt;/tr&gt;</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;tr&gt;&lt;td&gt;7.2&lt;/td&gt; &lt;td&gt;8.1&lt;/td&gt;&lt;/tr&gt;</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;/table&gt;</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="st">  "</span>)</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Can use html_table():</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>html <span class="sc">|&gt;</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">".mytable"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>() <span class="co"># x and y automatically convert to numbers; optional arg: convert = FALSE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+      x     y
+  &lt;dbl&gt; &lt;dbl&gt;
+1   1.5   2.7
+2   4.9   1.3
+3   7.2   8.1</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="finding-right-selector" class="level2">
+<h2 class="anchored" data-anchor-id="finding-right-selector">Finding right selector</h2>
+<ul>
+<li>Finding the correct <strong>CSS selector</strong> often requires trial and error—it should be <strong>specific</strong> enough to exclude unwanted elements while <strong>broad</strong> enough to capture all desired ones.</li>
+<li>Useful tools:
+<ul>
+<li><strong>SelectorGadget</strong>: Automatically suggests CSS selectors based on selected examples.</li>
+<li><strong>Browser Developer Tools (Inspect)</strong>: Explore the HTML structure, especially <code>id</code> and <code>class</code> attributes.</li>
+</ul></li>
+<li>In Chrome DevTools, you can <strong>right-click an element → Copy → Copy selector</strong> to obtain a unique CSS selector.</li>
+<li>If you want to better understand CSS selectors, use resources such as <strong>Selectors Explained</strong>, <strong>CSS Diner</strong>, and the <strong>MDN Web Docs</strong>.</li>
+</ul>
+</section>
+<section id="putting-it-all-together" class="level2">
+<h2 class="anchored" data-anchor-id="putting-it-all-together">Putting it all together</h2>
+<section id="star-wars" class="level3">
+<h3 class="anchored" data-anchor-id="star-wars">Star Wars</h3>
+<p>Simple example in <code>vignette("starwars")</code>. Each movie shares same structure:</p>
+<pre><code>&lt;section&gt;
+  &lt;h2 data-id="1"&gt;The Phantom Menace&lt;/h2&gt;
+  &lt;p&gt;Released: 1999-05-19&lt;/p&gt;
+  &lt;p&gt;Director: &lt;span class="director"&gt;George Lucas&lt;/span&gt;&lt;/p&gt;
+  
+  &lt;div class="crawl"&gt;
+    &lt;p&gt;...&lt;/p&gt;
+    &lt;p&gt;...&lt;/p&gt;
+    &lt;p&gt;...&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">"https://rvest.tidyverse.org/articles/starwars.html"</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>html <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>section <span class="ot">&lt;-</span> html <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">"section"</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>section</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{xml_nodeset (7)}
+[1] &lt;section&gt;&lt;h2 data-id="1"&gt;\nThe Phantom Menace\n&lt;/h2&gt;\n&lt;p&gt;\nReleased: 1999 ...
+[2] &lt;section&gt;&lt;h2 data-id="2"&gt;\nAttack of the Clones\n&lt;/h2&gt;\n&lt;p&gt;\nReleased: 20 ...
+[3] &lt;section&gt;&lt;h2 data-id="3"&gt;\nRevenge of the Sith\n&lt;/h2&gt;\n&lt;p&gt;\nReleased: 200 ...
+[4] &lt;section&gt;&lt;h2 data-id="4"&gt;\nA New Hope\n&lt;/h2&gt;\n&lt;p&gt;\nReleased: 1977-05-25\n ...
+[5] &lt;section&gt;&lt;h2 data-id="5"&gt;\nThe Empire Strikes Back\n&lt;/h2&gt;\n&lt;p&gt;\nReleased: ...
+[6] &lt;section&gt;&lt;h2 data-id="6"&gt;\nReturn of the Jedi\n&lt;/h2&gt;\n&lt;p&gt;\nReleased: 1983 ...
+[7] &lt;section&gt;&lt;h2 data-id="7"&gt;\nThe Force Awakens\n&lt;/h2&gt;\n&lt;p&gt;\nReleased: 2015- ...</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># title</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>title <span class="ot">&lt;-</span> section <span class="sc">|&gt;</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">"h2"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>()</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="co"># release year</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>release_year <span class="ot">&lt;-</span> section <span class="sc">|&gt;</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">"p"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_remove</span>(<span class="at">pattern =</span> <span class="st">"Released: "</span>) <span class="sc">|&gt;</span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">parse_date</span>()</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a><span class="co"># director</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>director <span class="ot">&lt;-</span> section <span class="sc">|&gt;</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">".director"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>()</span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a><span class="co"># intro</span></span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>intro <span class="ot">&lt;-</span> section <span class="sc">|&gt;</span></span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">".crawl"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>()</span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a><span class="co"># After gathering all needed components</span></span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> title,</span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">released =</span> release_year,</span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">director =</span> director,</span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">intro =</span> intro</span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 4
+  title                   released   director         intro                     
+  &lt;chr&gt;                   &lt;date&gt;     &lt;chr&gt;            &lt;chr&gt;                     
+1 The Phantom Menace      1999-05-19 George Lucas     "Turmoil has engulfed the…
+2 Attack of the Clones    2002-05-16 George Lucas     "There is unrest in the G…
+3 Revenge of the Sith     2005-05-19 George Lucas     "War! The Republic is cru…
+4 A New Hope              1977-05-25 George Lucas     "It is a period of civil …
+5 The Empire Strikes Back 1980-05-17 Irvin Kershner   "It is a dark time for th…
+6 Return of the Jedi      1983-05-25 Richard Marquand "Luke Skywalker has retur…
+7 The Force Awakens       2015-12-11 J. J. Abrams     "Luke Skywalker has vanis…</code></pre>
+</div>
+</div>
+</section>
+<section id="imdb-top-films" class="level3">
+<h3 class="anchored" data-anchor-id="imdb-top-films">IMDB top films</h3>
+<p>Extracting the top 250 movies from the internet movie database (IMDb).</p>
+<p>Data has a tabular structure - worth starting with html_table():</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span><span class="st">"https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/"</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>imdb <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>imdb_body <span class="ot">&lt;-</span> imdb <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">".lister-list"</span>)</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="co"># title</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>title <span class="ot">&lt;-</span> imdb_body <span class="sc">|&gt;</span> </span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="st">"tr"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">".titleColumn"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>() <span class="sc">|&gt;</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_remove_all</span>(<span class="at">pattern =</span> <span class="st">"^[0-9]+</span><span class="sc">\\</span><span class="st">. "</span>) </span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>title</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "The Shawshank Redemption (1994)"                                            
+  [2] "The Godfather (1972)"                                                       
+  [3] "The Godfather: Part II (1974)"                                              
+  [4] "The Dark Knight (2008)"                                                     
+  [5] "12 Angry Men (1957)"                                                        
+  [6] "Schindler's List (1993)"                                                    
+  [7] "The Lord of the Rings: The Return of the King (2003)"                       
+  [8] "Pulp Fiction (1994)"                                                        
+  [9] "The Good, the Bad and the Ugly (1966)"                                      
+ [10] "The Lord of the Rings: The Fellowship of the Ring (2001)"                   
+ [11] "Fight Club (1999)"                                                          
+ [12] "Forrest Gump (1994)"                                                        
+ [13] "Inception (2010)"                                                           
+ [14] "The Lord of the Rings: The Two Towers (2002)"                               
+ [15] "Star Wars: Episode V - The Empire Strikes Back (1980)"                      
+ [16] "The Matrix (1999)"                                                          
+ [17] "Goodfellas (1990)"                                                          
+ [18] "One Flew Over the Cuckoo's Nest (1975)"                                     
+ [19] "Seven Samurai (1954)"                                                       
+ [20] "Se7en (1995)"                                                               
+ [21] "The Silence of the Lambs (1991)"                                            
+ [22] "City of God (2002)"                                                         
+ [23] "It's a Wonderful Life (1946)"                                               
+ [24] "Life Is Beautiful (1997)"                                                   
+ [25] "Spider-Man: No Way Home (2021)"                                             
+ [26] "Saving Private Ryan (1998)"                                                 
+ [27] "Star Wars: Episode IV - A New Hope (1977)"                                  
+ [28] "Interstellar (2014)"                                                        
+ [29] "Spirited Away (2001)"                                                       
+ [30] "The Green Mile (1999)"                                                      
+ [31] "Parasite (2019)"                                                            
+ [32] "Léon: The Professional (1994)"                                              
+ [33] "Hara-Kiri (1962)"                                                           
+ [34] "The Pianist (2002)"                                                         
+ [35] "Terminator 2: Judgment Day (1991)"                                          
+ [36] "Back to the Future (1985)"                                                  
+ [37] "The Usual Suspects (1995)"                                                  
+ [38] "Psycho (1960)"                                                              
+ [39] "The Lion King (1994)"                                                       
+ [40] "Modern Times (1936)"                                                        
+ [41] "Grave of the Fireflies (1988)"                                              
+ [42] "American History X (1998)"                                                  
+ [43] "Whiplash (2014)"                                                            
+ [44] "Gladiator (2000)"                                                           
+ [45] "City Lights (1931)"                                                         
+ [46] "The Departed (2006)"                                                        
+ [47] "The Intouchables (2011)"                                                    
+ [48] "The Prestige (2006)"                                                        
+ [49] "Casablanca (1942)"                                                          
+ [50] "Once Upon a Time in the West (1968)"                                        
+ [51] "Rear Window (1954)"                                                         
+ [52] "Cinema Paradiso (1988)"                                                     
+ [53] "Alien (1979)"                                                               
+ [54] "Apocalypse Now (1979)"                                                      
+ [55] "Memento (2000)"                                                             
+ [56] "Indiana Jones and the Raiders of the Lost Ark (1981)"                       
+ [57] "The Great Dictator (1940)"                                                  
+ [58] "Django Unchained (2012)"                                                    
+ [59] "The Lives of Others (2006)"                                                 
+ [60] "Paths of Glory (1957)"                                                      
+ [61] "Sunset Blvd. (1950)"                                                        
+ [62] "WALL·E (2008)"                                                              
+ [63] "Avengers: Infinity War (2018)"                                              
+ [64] "Witness for the Prosecution (1957)"                                         
+ [65] "Spider-Man: Into the Spider-Verse (2018)"                                   
+ [66] "The Shining (1980)"                                                         
+ [67] "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1964)"
+ [68] "Princess Mononoke (1997)"                                                   
+ [69] "Oldboy (2003)"                                                              
+ [70] "Joker (2019)"                                                               
+ [71] "Your Name. (2016)"                                                          
+ [72] "Coco (2017)"                                                                
+ [73] "The Dark Knight Rises (2012)"                                               
+ [74] "Aliens (1986)"                                                              
+ [75] "Once Upon a Time in America (1984)"                                         
+ [76] "Avengers: Endgame (2019)"                                                   
+ [77] "Capernaum (2018)"                                                           
+ [78] "Das Boot (1981)"                                                            
+ [79] "High and Low (1963)"                                                        
+ [80] "3 Idiots (2009)"                                                            
+ [81] "Toy Story (1995)"                                                           
+ [82] "Amadeus (1984)"                                                             
+ [83] "American Beauty (1999)"                                                     
+ [84] "Braveheart (1995)"                                                          
+ [85] "Inglourious Basterds (2009)"                                                
+ [86] "Good Will Hunting (1997)"                                                   
+ [87] "Hamilton (2020)"                                                            
+ [88] "Star Wars: Episode VI - Return of the Jedi (1983)"                          
+ [89] "Come and See (1985)"                                                        
+ [90] "2001: A Space Odyssey (1968)"                                               
+ [91] "Reservoir Dogs (1992)"                                                      
+ [92] "Like Stars on Earth (2007)"                                                 
+ [93] "Vertigo (1958)"                                                             
+ [94] "M (1931)"                                                                   
+ [95] "The Hunt (2012)"                                                            
+ [96] "Citizen Kane (1941)"                                                        
+ [97] "Requiem for a Dream (2000)"                                                 
+ [98] "Singin' in the Rain (1952)"                                                 
+ [99] "North by Northwest (1959)"                                                  
+[100] "Eternal Sunshine of the Spotless Mind (2004)"                               
+[101] "Ikiru (1952)"                                                               
+[102] "Bicycle Thieves (1948)"                                                     
+[103] "Lawrence of Arabia (1962)"                                                  
+[104] "The Kid (1921)"                                                             
+[105] "Full Metal Jacket (1987)"                                                   
+[106] "Incendies (2010)"                                                           
+[107] "The Apartment (1960)"                                                       
+[108] "Dangal (2016)"                                                              
+[109] "Double Indemnity (1944)"                                                    
+[110] "Metropolis (1927)"                                                          
+[111] "A Separation (2011)"                                                        
+[112] "The Father (2020)"                                                          
+[113] "Taxi Driver (1976)"                                                         
+[114] "A Clockwork Orange (1971)"                                                  
+[115] "The Sting (1973)"                                                           
+[116] "Scarface (1983)"                                                            
+[117] "Snatch (2000)"                                                              
+[118] "1917 (2019)"                                                                
+[119] "Amélie (2001)"                                                              
+[120] "To Kill a Mockingbird (1962)"                                               
+[121] "Toy Story 3 (2010)"                                                         
+[122] "For a Few Dollars More (1965)"                                              
+[123] "Up (2009)"                                                                  
+[124] "Pather Panchali (1955)"                                                     
+[125] "Indiana Jones and the Last Crusade (1989)"                                  
+[126] "Heat (1995)"                                                                
+[127] "L.A. Confidential (1997)"                                                   
+[128] "Ran (1985)"                                                                 
+[129] "Yojimbo (1961)"                                                             
+[130] "Die Hard (1988)"                                                            
+[131] "Green Book (2018)"                                                          
+[132] "Rashomon (1950)"                                                            
+[133] "Downfall (2004)"                                                            
+[134] "All About Eve (1950)"                                                       
+[135] "Monty Python and the Holy Grail (1975)"                                     
+[136] "Some Like It Hot (1959)"                                                    
+[137] "Batman Begins (2005)"                                                       
+[138] "Unforgiven (1992)"                                                          
+[139] "Children of Heaven (1997)"                                                  
+[140] "Jai Bhim (2021)"                                                            
+[141] "Howl's Moving Castle (2004)"                                                
+[142] "The Wolf of Wall Street (2013)"                                             
+[143] "Judgment at Nuremberg (1961)"                                               
+[144] "There Will Be Blood (2007)"                                                 
+[145] "Casino (1995)"                                                              
+[146] "The Great Escape (1963)"                                                    
+[147] "The Treasure of the Sierra Madre (1948)"                                    
+[148] "Pan's Labyrinth (2006)"                                                     
+[149] "A Beautiful Mind (2001)"                                                    
+[150] "The Secret in Their Eyes (2009)"                                            
+[151] "Raging Bull (1980)"                                                         
+[152] "Chinatown (1974)"                                                           
+[153] "My Neighbor Totoro (1988)"                                                  
+[154] "Shutter Island (2010)"                                                      
+[155] "Lock, Stock and Two Smoking Barrels (1998)"                                 
+[156] "No Country for Old Men (2007)"                                              
+[157] "Klaus (2019)"                                                               
+[158] "Dial M for Murder (1954)"                                                   
+[159] "The Thing (1982)"                                                           
+[160] "The Gold Rush (1925)"                                                       
+[161] "Three Billboards Outside Ebbing, Missouri (2017)"                           
+[162] "The Seventh Seal (1957)"                                                    
+[163] "The Elephant Man (1980)"                                                    
+[164] "Dersu Uzala (1975)"                                                         
+[165] "The Sixth Sense (1999)"                                                     
+[166] "The Truman Show (1998)"                                                     
+[167] "Jurassic Park (1993)"                                                       
+[168] "Wild Strawberries (1957)"                                                   
+[169] "The Third Man (1949)"                                                       
+[170] "Memories of Murder (2003)"                                                  
+[171] "V for Vendetta (2005)"                                                      
+[172] "Blade Runner (1982)"                                                        
+[173] "Trainspotting (1996)"                                                       
+[174] "Fargo (1996)"                                                               
+[175] "The Bridge on the River Kwai (1957)"                                        
+[176] "Inside Out (2015)"                                                          
+[177] "Finding Nemo (2003)"                                                        
+[178] "Kill Bill: Vol. 1 (2003)"                                                   
+[179] "Warrior (2011)"                                                             
+[180] "Gone with the Wind (1939)"                                                  
+[181] "Tokyo Story (1953)"                                                         
+[182] "On the Waterfront (1954)"                                                   
+[183] "My Father and My Son (2005)"                                                
+[184] "Wild Tales (2014)"                                                          
+[185] "Prisoners (2013)"                                                           
+[186] "Stalker (1979)"                                                             
+[187] "The Grand Budapest Hotel (2014)"                                            
+[188] "The Deer Hunter (1978)"                                                     
+[189] "The General (1926)"                                                         
+[190] "Persona (1966)"                                                             
+[191] "Gran Torino (2008)"                                                         
+[192] "Sherlock Jr. (1924)"                                                        
+[193] "Before Sunrise (1995)"                                                      
+[194] "Mary and Max (2009)"                                                        
+[195] "Catch Me If You Can (2002)"                                                 
+[196] "Mr. Smith Goes to Washington (1939)"                                        
+[197] "Barry Lyndon (1975)"                                                        
+[198] "In the Name of the Father (1993)"                                           
+[199] "Dune (2021)"                                                                
+[200] "Hacksaw Ridge (2016)"                                                       
+[201] "Z (1969)"                                                                   
+[202] "Gone Girl (2014)"                                                           
+[203] "Room (2015)"                                                                
+[204] "The Passion of Joan of Arc (1928)"                                          
+[205] "Andhadhun (2018)"                                                           
+[206] "Ford v Ferrari (2019)"                                                      
+[207] "12 Years a Slave (2013)"                                                    
+[208] "To Be or Not to Be (1942)"                                                  
+[209] "The Big Lebowski (1998)"                                                    
+[210] "Dead Poets Society (1989)"                                                  
+[211] "Harry Potter and the Deathly Hallows: Part 2 (2011)"                        
+[212] "Ben-Hur (1959)"                                                             
+[213] "How to Train Your Dragon (2010)"                                            
+[214] "Mad Max: Fury Road (2015)"                                                  
+[215] "Autumn Sonata (1978)"                                                       
+[216] "Million Dollar Baby (2004)"                                                 
+[217] "The Wages of Fear (1953)"                                                   
+[218] "Stand by Me (1986)"                                                         
+[219] "The Handmaiden (2016)"                                                      
+[220] "Network (1976)"                                                             
+[221] "Logan (2017)"                                                               
+[222] "A Silent Voice: The Movie (2016)"                                           
+[223] "La Haine (1995)"                                                            
+[224] "Hachi: A Dog's Tale (2009)"                                                 
+[225] "Cool Hand Luke (1967)"                                                      
+[226] "Gangs of Wasseypur (2012)"                                                  
+[227] "The 400 Blows (1959)"                                                       
+[228] "Platoon (1986)"                                                             
+[229] "Spotlight (2015)"                                                           
+[230] "Monsters, Inc. (2001)"                                                      
+[231] "Rebecca (1940)"                                                             
+[232] "Life of Brian (1979)"                                                       
+[233] "In the Mood for Love (2000)"                                                
+[234] "Hotel Rwanda (2004)"                                                        
+[235] "The Bandit (1996)"                                                          
+[236] "Rush (2013)"                                                                
+[237] "Rocky (1976)"                                                               
+[238] "Amores perros (2000)"                                                       
+[239] "Into the Wild (2007)"                                                       
+[240] "Nausicaä of the Valley of the Wind (1984)"                                  
+[241] "Demon Slayer: Mugen Train (2020)"                                           
+[242] "Before Sunset (2004)"                                                       
+[243] "It Happened One Night (1934)"                                               
+[244] "Fanny and Alexander (1982)"                                                 
+[245] "Drishyam (2013)"                                                            
+[246] "The Battle of Algiers (1966)"                                               
+[247] "Nights of Cabiria (1957)"                                                   
+[248] "Miracle in Cell No. 7 (2019)"                                               
+[249] "Andrei Rublev (1966)"                                                       
+[250] "The Princess Bride (1987)"                                                  </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rating</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>rating <span class="ot">&lt;-</span> imdb_body <span class="sc">|&gt;</span> </span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="st">"tr"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">".ratingColumn"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>() <span class="sc">|&gt;</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">parse_double</span>()</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>tibble <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> title,</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">rating =</span> rating</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>tibble <span class="ot">&lt;-</span> tibble <span class="sc">|&gt;</span></span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rank =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(tibble), <span class="at">.before =</span> title)</span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Alternatively</span></span>
+<span id="cb46-17"><a href="#cb46-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-18"><a href="#cb46-18" aria-hidden="true" tabindex="-1"></a>table <span class="ot">&lt;-</span> imdb <span class="sc">|&gt;</span></span>
+<span id="cb46-19"><a href="#cb46-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_element</span>(<span class="st">"table"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb46-20"><a href="#cb46-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span>
+<span id="cb46-21"><a href="#cb46-21" aria-hidden="true" tabindex="-1"></a>table</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 250 × 5
+   ``    `Rank &amp; Title`                        `IMDb Rating` `Your Rating` ``   
+   &lt;lgl&gt; &lt;chr&gt;                                         &lt;dbl&gt; &lt;chr&gt;         &lt;lgl&gt;
+ 1 NA    "1.\n      The Shawshank Redemption\…           9.2 "12345678910… NA   
+ 2 NA    "2.\n      The Godfather\n        (1…           9.1 "12345678910… NA   
+ 3 NA    "3.\n      The Godfather: Part II\n …           9   "12345678910… NA   
+ 4 NA    "4.\n      The Dark Knight\n        …           9   "12345678910… NA   
+ 5 NA    "5.\n      12 Angry Men\n        (19…           8.9 "12345678910… NA   
+ 6 NA    "6.\n      Schindler's List\n       …           8.9 "12345678910… NA   
+ 7 NA    "7.\n      The Lord of the Rings: Th…           8.9 "12345678910… NA   
+ 8 NA    "8.\n      Pulp Fiction\n        (19…           8.8 "12345678910… NA   
+ 9 NA    "9.\n      The Good, the Bad and the…           8.8 "12345678910… NA   
+10 NA    "10.\n      The Lord of the Rings: T…           8.8 "12345678910… NA   
+# ℹ 240 more rows</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>ratings <span class="ot">&lt;-</span> table <span class="sc">|&gt;</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rank_title_year =</span> <span class="st">`</span><span class="at">Rank &amp; Title</span><span class="st">`</span>,</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">rating =</span> <span class="st">`</span><span class="at">IMDb Rating</span><span class="st">`</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">rank_title_year =</span> <span class="fu">str_replace_all</span>(rank_title_year, <span class="st">"</span><span class="sc">\n</span><span class="st"> +"</span>, <span class="st">" "</span>)</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_wider_regex</span>(</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>    rank_title_year,</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">patterns =</span> <span class="fu">c</span>(</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">rank =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">. "</span>,</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="st">".+"</span>, <span class="st">" </span><span class="sc">\\</span><span class="st">("</span>,</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">year =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">)"</span></span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a>ratings</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 250 × 4
+   rank  title                                             year  rating
+   &lt;chr&gt; &lt;chr&gt;                                             &lt;chr&gt;  &lt;dbl&gt;
+ 1 1     The Shawshank Redemption                          1994     9.2
+ 2 2     The Godfather                                     1972     9.1
+ 3 3     The Godfather: Part II                            1974     9  
+ 4 4     The Dark Knight                                   2008     9  
+ 5 5     12 Angry Men                                      1957     8.9
+ 6 6     Schindler's List                                  1993     8.9
+ 7 7     The Lord of the Rings: The Return of the King     2003     8.9
+ 8 8     Pulp Fiction                                      1994     8.8
+ 9 9     The Good, the Bad and the Ugly                    1966     8.8
+10 10    The Lord of the Rings: The Fellowship of the Ring 2001     8.8
+# ℹ 240 more rows</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Can add additional information:</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>ratings <span class="sc">|&gt;</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">rating_n =</span> imdb <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">"td strong"</span>) <span class="sc">|&gt;</span> <span class="fu">html_attr</span>(<span class="st">"title"</span>)</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_wider_regex</span>(</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    rating_n,</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">patterns =</span> <span class="fu">c</span>(</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>      <span class="st">"[0-9.]+ based on "</span>,</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">number =</span> <span class="st">"[0-9,]+"</span>,</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">" user ratings"</span></span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">number =</span> <span class="fu">parse_number</span>(number)</span>
+<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 250 × 5
+   rank  title                                             year  rating  number
+   &lt;chr&gt; &lt;chr&gt;                                             &lt;chr&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+ 1 1     The Shawshank Redemption                          1994     9.2 2536415
+ 2 2     The Godfather                                     1972     9.1 1745675
+ 3 3     The Godfather: Part II                            1974     9   1211032
+ 4 4     The Dark Knight                                   2008     9   2486931
+ 5 5     12 Angry Men                                      1957     8.9  749563
+ 6 6     Schindler's List                                  1993     8.9 1295705
+ 7 7     The Lord of the Rings: The Return of the King     2003     8.9 1749722
+ 8 8     Pulp Fiction                                      1994     8.8 1952864
+ 9 9     The Good, the Bad and the Ugly                    1966     8.8  732557
+10 10    The Lord of the Rings: The Fellowship of the Ring 2001     8.8 1771245
+# ℹ 240 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="dynamic-websites" class="level3">
+<h3 class="anchored" data-anchor-id="dynamic-websites">Dynamic websites</h3>
+<ul>
+<li><code>html_elements()</code> works only on the <strong>raw HTML</strong> downloaded from a website.</li>
+<li>Many modern websites generate content dynamically using <strong>JavaScript</strong>, so the desired elements may not appear in the raw HTML.</li>
+<li>Therefore, <code>html_elements()</code> may return nothing even though the content is visible in the browser.</li>
+<li>To scrape dynamic sites, JavaScript must be executed by simulating a real browser.</li>
+<li><strong>rvest</strong> is adding support for this using the <strong>chromote</strong> package, which controls a Chrome browser in the background and allows interaction (e.g., clicking buttons, typing text).</li>
+</ul>
+
+
+</section>
+</section>
+
+</i></b></main><b><i> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/Pipo998\.github\.io\/r-learning\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</i></b></div><b><i> <!-- /content -->
+
+
+
+
+</i></b></body></html>
