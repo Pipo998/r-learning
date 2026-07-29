@@ -15,3 +15,4 @@ This section collects my notes and exercises on data import in R.
 - [Databases](Import/databases.qmd)
 - [Arrow](Import/arrow.qmd)
 - [Hierarchical Data](Import/hierarchical-data.qmd)
+- [Web scraping](Import/web-scraping.qmd)

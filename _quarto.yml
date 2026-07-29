@@ -87,6 +87,9 @@ website:
             
           - href: Import/hierarchical-data.qmd
             text: Hierarchical Data
+            
+          - href: Import/web-scraping.qmd
+            text: Web scraping
 format:
   html:
     theme: darkly
