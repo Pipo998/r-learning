@@ -15,6 +15,9 @@ website:
         text: Transformation
       - href: import.qmd
         text: Import
+      - href: program.qmd
+        text: Program
+      
 
   sidebar:
     style: docked
@@ -90,6 +93,15 @@ website:
             
           - href: Import/web-scraping.qmd
             text: Web scraping
+            
+            
+      - section: "Program"
+        href: program.qmd
+        contents:
+          - href: Program/functions.qmd
+            text: Functions
+            
+            
 format:
   html:
     theme: darkly
