@@ -142,6 +142,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../import.html"> 
 <span class="menu-text">Import</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../program.html"> 
+<span class="menu-text">Program</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -326,6 +330,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
       </ul>
   </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../program.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Program</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Program/functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Functions</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -463,7 +484,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>duckdb is keeping downloaded extensions in a temporary directory:
-ℹ /var/folders/lr/y038w26n72zgvyjg_s69cyk80000gn/T//Rtmp9QjWqp/duckdb/extensions
+ℹ /var/folders/lr/y038w26n72zgvyjg_s69cyk80000gn/T//RtmpJ5uJSM/duckdb/extensions
 This is removed when the R session ends, so extensions are re-downloaded each session.
 ℹ To keep them, point `options(duckdb.extension_directory =)` or the `DUCKDB_EXTENSION_DIRECTORY` environment variable at a permanent path.</code></pre>
 </div>
@@ -795,18 +816,18 @@ This warning is displayed once every 8 hours.</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code># A query:  ?? x 2
 # Database: DuckDB 1.5.4 [root@Darwin 25.5.0:R 4.5.2/:memory:]
-   dest    delay
-   &lt;chr&gt;   &lt;dbl&gt;
- 1 CLT    7.36  
- 2 MDW   12.4   
- 3 SDF   12.7   
- 4 LAS    0.258 
- 5 IAH    4.24  
- 6 CAK   19.7   
- 7 LGB   -0.0620
- 8 HOU    7.18  
- 9 PHX    2.10  
-10 SYR    8.90  
+   dest  delay
+   &lt;chr&gt; &lt;dbl&gt;
+ 1 HOU    7.18
+ 2 PHX    2.10
+ 3 SYR    8.90
+ 4 BDL    7.05
+ 5 BWI   10.7 
+ 6 SAT    6.95
+ 7 ATL   11.3 
+ 8 MCO    5.45
+ 9 BNA   11.8 
+10 ALB   14.4 
 # ℹ more rows</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">|&gt;</span></span>
