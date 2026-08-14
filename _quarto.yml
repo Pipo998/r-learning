@@ -101,6 +101,9 @@ website:
           - href: Program/functions.qmd
             text: Functions
             
+          - href: Program/iteration.qmd
+            text: Iteration
+            
             
 format:
   html:

@@ -59,3 +59,9 @@ _site/
 
 # Large datasets
 Import/data/
+
+# Ignoring csv and png files in Program
+diamonds-*.csv
+clarity-*.png
+Program/*.csv
+Program/data
