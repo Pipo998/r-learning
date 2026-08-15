@@ -13,3 +13,4 @@ This section collects my notes and exercises on data import in R.
 
 - [Functions](Program/functions.qmd)
 - [Functions](Program/iteration.qmd)
+- [Functions](Program/base-r.qmd)

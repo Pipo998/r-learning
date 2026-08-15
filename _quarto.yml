@@ -104,6 +104,9 @@ website:
           - href: Program/iteration.qmd
             text: Iteration
             
+          - href: Program/base-r.qmd
+            text: Base R
+            
             
 format:
   html:

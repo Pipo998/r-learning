@@ -1,0 +1,490 @@
+---
+title: "base-r"
+subtitle: "R for Data Science (2e), Chapter 26"
+toc: true
+theme: darkly
+format: html
+---
+
+## Introduction
+
+tidyverse is not only way to solve data science problems - it is not possible to use tidyverse without base R.
+
+### Prerequisites
+
+```{r}
+#| label: Prereq
+
+# Will load tidyverse for the sake of comparing approaches to base R
+library(tidyverse)
+```
+
+## Selecting mutliple elements with \[
+
+`[` - extracts sub-components from vectors and data frames - e.g., `x[i]`, `y[i, j]`.
+
+### Subsetting vectors
+
+Five main things that can subset a vector with - i.e., can be the `i` in `x[i]`
+
+1.  **vector of positive integers**
+
+```{r}
+#| label: Subsetting vector with positive integers
+
+x <- c("one", "two", "three", "four", "five")
+x[c(3, 2, 5)]
+
+# can make longer output by repeating positions
+x[c(3, 2, 5, 3, 2, 4)]
+```
+
+2.  **vector of negative integers**
+
+```{r}
+#| label: Subsetting vector with negative integers
+
+x[c(-3,-2,-5)]
+```
+
+3.  **logical vector**
+
+```{r}
+#| label: Subsetting with logical vector
+
+x[c(TRUE, TRUE, FALSE)] # recycled the vector as length of logical vector ≠ length of vector x
+
+x[!is.na(x)] # subsetting all non-missing values
+
+
+y <- c(10, 3, NA, 5, 8, 1, NA)
+y[y %% 2 == 0]
+```
+
+Unlike `filter()`, `NA` values will be included in the output.
+
+4.  **character vector**
+
+```{r}
+#| label: Subsetting with character vector
+
+x <- c(abc = 1, def = 2, xyz = 5)
+
+x[c("abc", "xyz")]
+
+# can also use character vectors to duplicate individual entires
+```
+
+5.  **nothing**
+
+```{r}
+#| label: Subseeting with nothing
+
+# return complete x
+x[]
+
+```
+
+### Subsetting data frames
+
+`df[rows, cols]` - can only select specific rows or cols while keeping all other cols and rows `df[, cols]` and `df[rows, ]`.
+
+```{r}
+#| label: Subsetting data frames - examples
+
+df <- tibble(
+  x = 1:3,
+  y = c("a", "b", "c"),
+  z = runif(3)
+)
+
+df
+
+# Selecting first row and second column
+df[1, 2]
+
+# Selecting all rows and columns x and y
+df[, c("x", "y")]
+
+# Selecting rows where "x" is greater than 1
+df[df$x > 1, ]
+```
+
+Base R `data.frame` (similar to tidyverse `tibble`- though some behavior makes life easier) - returns vector if df\[, cols\] selects single single column, returns data frame when selecting multiple columns.
+
+Note: if `df` is a tibble, then `[` will return a tibble.
+
+```{r}
+#| label: Subsetting data frames in base R
+
+df1 <- data.frame(x = 1:3)
+df1
+df1[, "x"] # returns vector as single column selected
+
+# Can avoid ambiguity by specifying drop = FALSE
+
+df1 <- data.frame(x = 1:3)
+df[, "x", drop = FALSE] # now return data frame instead of vector
+
+# comparing to tidyverse "tibble"
+df2 <- tibble(x = 1:3)
+df[, "x"] # tibble returns tibble
+
+```
+
+### dplyr equivalents
+
+Several dplyr verbs are special cases of `[`:
+
+- `filter()`:
+
+```{r}
+#| label: filter() verb as [
+
+df <- tibble(
+  x = c(2, 3, 1, 1, NA),
+  y = letters[1:5],
+  z = runif(5)
+)
+
+df |> 
+  filter(x > 1)
+
+# equivalent to base R:
+
+df[!is.na(df$x) & df$x > 1, ]
+
+# alternatively use which() - dropping the missing values
+
+df[which(df$x > 1), ]
+
+```
+
+- `arrange()`:
+
+```{r}
+#| label: Subsetting rows with integer vector - arrange()
+
+# arrange() is subsetting with integer vector - usually using order()
+
+df |>
+  arrange(x, y)
+
+# equivalent to base R:
+
+df[order(df$x, df$y), ]
+```
+
+- `select()`, `relocate()`:
+
+```{r}
+#| label: Base R version of select() and relocate()
+
+# Similar to subsetting the columns with a character vector
+df |> 
+  select(x, y)
+
+# base R alternative:
+df[c("x", "y")]
+```
+
+Base R also combines futures of `filter()` and `select()` - `subset()`:
+
+```{r}
+#| label: Using subset()
+
+df |>
+  filter(x > 1) |>
+  select(y, z)
+
+# Base R alternative:
+df |>
+  subset(subset = x > 1, select = c(y, z))
+```
+
+### Exercises
+
+```{r}
+#| label: exercises
+
+# ex1: 
+# a. function taking a vector as input and returning elements at even-numbered positions
+even_elmts <- function(vec) {
+  vec[1:length(vec) %% 2 == 0]
+}
+
+vec <- sample(x = 1:10, size = 13, replace = TRUE)
+vec
+
+even_elmts(vec = vec)
+
+# b. every element except the last one
+all_elmts_exlo <- function(vec) {
+  vec[1:(length(vec)-1)]
+}
+
+vec
+all_elmts_exlo(vec)
+
+# c. only even values (and no missing values)
+even_vals <- function(vec) {
+  vec[which(vec %% 2 == 0)]
+}
+
+vec <- c(vec, NA)
+vec
+
+even_vals(vec)
+
+
+# ex2: Read ?which; Why is not x[-which(x>0)] same as x[x <= 0]
+
+```
+
+## Selecting single element with \$ and \[\[
+
+Used to pull columns out of data frames.
+
+### Data frames
+
+\[\[ can access by position or by name; \$ accesse by name.
+
+```{r}
+#| label: extracting columns by position, by name
+
+tb <- tibble(
+  x = 1:4, 
+  y = c(10, 4, 1, 21)
+)
+
+tb
+
+# by position
+tb[[1]]
+# by name
+tb[["x"]]
+
+# by name ($)
+tb$x
+
+# can also be used to create new columns
+tb$z <- tb$y + tb$x
+tb
+
+```
+
+Several other approaches in base R to create new columns: `transform()`, `with()`, `within()`.
+
+https://gist.github.com/hadley/1986a273e384fb2d4d752c18ed71bedf
+
+`$` convenient when performing quick summaries:
+
+```{r}
+#| label: Using $ when performing quick summaries
+
+max(diamonds$carat)
+
+levels(diamonds$cut)
+
+# dplyr alternative to [[/$:
+diamonds |>
+  pull(carat) |>
+  max()
+
+diamonds |>
+  pull(cut) |>
+  levels()
+```
+
+### Tibbles
+
+Important differences between tibbles and base `data.frame` when it comes to `$`. Data frames match prefix of any variable name (**partial matching**) - does not complain if column does not exist:
+
+```{r}
+#| label: Partial matching
+
+df <- data.frame(x1 = 1)
+
+df$x # partially matches the prefix
+
+df$z
+```
+
+Tibbles more strict - only match variable names exactly - generate a warning if column trying to access does not exist:
+
+```{r}
+#| label: Partial matching - cont.
+
+tb <- tibble(x1 = 1)
+
+tb$x # no "partial matching"; looks for exact match
+
+tb$x1 # only works with exact match
+
+```
+
+### Lists
+
+```{r}
+#| label: Differences btw [ and [[ w lists
+
+l <- list(
+  a = 1:3,
+  b = "a string",
+  c = pi,
+  d = list(-1, -5)
+)
+
+```
+
+- `[` extracts sub-list - result will always be a list:
+
+```{r}
+#| label: Extracting a sub-list
+
+str(l[1:2])
+
+str(l[1])
+
+str(l["d"]) # can subset with logical, integer, or character
+
+```
+
+- `[[` and `$` extracts single component from a list - remove a level of hierarchy from the list:
+
+```{r}
+#| label: Extracting a component
+
+str(l[[1]])
+
+str(l[[4]])
+
+str(l$a)
+```
+
+::: callout-important
+`[` retruns a new, smaller list.
+
+`[[` drills down into the list.
+:::
+
+## Apply family
+
+Base equivalents for tidyverse techniques for iteration like `dplyr::across()` and map family of functions.
+
+Most important member of apply family - `lapply()` - similar to `purrr::map()`.
+
+`dplyr::across()` can be achieved using `lapply()` with `[`:
+
+```{r}
+#| label: apply family
+
+df <- tibble(
+  a = 1,
+  b = 2,
+  c = "a",
+  d = "b",
+  e = 4
+)
+
+df
+
+# example apply family function
+# sapply(), simplifies results, thus "s", (compare to map_vec())
+num_cols <- sapply(df, is.numeric)
+
+# transform each column with lapply() then replace original values
+
+df[, num_cols] <- lapply(df[, num_cols, drop = FALSE], \(x) x * 2)
+
+df
+```
+
+Stricter version of `sapply()` is `vapply()` - vector apply - using additional argument specifying expected type, ensuring simplification occurs same way regardless of input:
+
+```{r}
+#| label: apply family - vapply()
+
+# Call above can be done by specifying type:
+vapply(df, is.numeric, logical(1))
+# we expect is.numeric() to return a logical vector of length 1, thus logical(1).
+
+```
+
+Another important member: `tapply()` - computes single grouped summary:
+
+```{r}
+#| label: tapply()
+
+
+diamonds |>
+  group_by(cut) |>
+  summarize(price = mean(price))
+
+tapply(diamonds$price, diamonds$cut, mean) # see ?tapply documentation
+# tapply returns results in named vector
+```
+
+`apply()` works with matrices and arrays.
+
+## for **loops**
+
+Building block of iteration used by apply and map families under the hood:
+
+```         
+for (element in vector) {
+  # do something with element
+}
+```
+
+Use of `for` loops is to achieve same effect as `walk()` - call some function with side-effect on each element of a list:
+
+```         
+paths |> walk(append_file)
+
+Could use for loop:
+
+for(path in paths) {
+  append_file(path)
+}
+```
+
+Slightly harder to save output of the `for` loop:
+
+```{r}
+#| label: Example for loops
+#| eval: false
+
+
+# Example:
+paths <- dir("data/gapminder", pattern = "\\.xlsx$", full.names = TRUE)
+
+files <- map(paths, readxl::read_excel)
+
+# Alternatively using for loop iteration:
+
+# Define upfront what output is going to look like
+files <- vector("list", length(paths))
+
+# Iterate over indices, instead over the elements
+for (i in seq_along(paths)) {
+  files[[i]] <- readxl::read_excel(paths[[i]])
+}
+
+# Combining list of tibbles into single tibble using do.call() + rbind()
+do.call(rbind, files)
+```
+
+
+## Plots
+
+```{r}
+#| label: Examples of base plot functions
+
+# Examples of base plot functions
+hist(diamonds$carat)
+
+plot(diamonds$carat, diamonds$price)
+
+```
+

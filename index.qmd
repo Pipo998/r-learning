@@ -6,7 +6,11 @@ editor: visual
 
 ## Welcome
 
-This Website documents my progress learning R.
+This website documents my progress in learning R. In particular, I have been working through R for Data Science (2e), written by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+
+The main focus is on developing a solid understanding of the tidyverse and its use in data analysis. In addition, I have included solutions to selected exercises for practice.
+
+This website serves as my personal learning environment and as an accessible, concise reference based on the book—a place where I can quickly look up the most important concepts and tools needed for data science.
 
 ## Topics
 
@@ -14,6 +18,6 @@ This Website documents my progress learning R.
 
 - Data transformation
 
-- Statistics
+- Importing data
 
-- Programming in R
+- Programming
