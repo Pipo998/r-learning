@@ -3,3 +3,35 @@ title: "vector-functions"
 format: html
 ---
 
+## 4. Function Calls, R Help, and Useful Functions
+
+### 4.1 R Help - "?", help()
+
+Calling **R-Help** with `?`-operator.
+
+```         
+?function_name - functions
+?"operator" - operators
+help(package = pkg_name) - packages
+```
+
+### 4.2 Generating sequences - seq()
+
+See `?seq`. Usage:
+
+```         
+## Default S3 method:
+seq(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
+length.out = NULL, along.with = NULL, ...)
+```
+
+| Parameter    | Meaning                                              |
+|:-------------|:-----------------------------------------------------|
+| `from`       | Starting value of the sequence.                      |
+| `to`         | End value of the sequence that must not be exceeded. |
+| `by`         | Step size of the sequence (can also be negative).    |
+| `length.out` | Length of the sequence.                              |
+
+: Parameters of the `seq()` function
+
+For `seq()` allowed to specify at most three parameters - fourth arguments computed automatically.
