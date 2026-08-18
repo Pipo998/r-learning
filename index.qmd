@@ -4,20 +4,16 @@ format: html
 editor: visual
 ---
 
-## Welcome
+This website documents my progress in learning R and data science.
 
-This website documents my progress in learning R. In particular, I have been working through R for Data Science (2e), written by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+## R for Data Science
 
-The main focus is on developing a solid understanding of the tidyverse and its use in data analysis. In addition, I have included solutions to selected exercises for practice.
+Notes, examples, and exercises from *R for Data Science (2e)* by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-This website serves as my personal learning environment and as an accessible, concise reference based on the book—a place where I can quickly look up the most important concepts and tools needed for data science.
+[Open R for Data Science →](r4ds/index.html)
 
-## Topics
+## Statistisches Programmieren mit R
 
-- Data visualization
+Notes, examples, and exercises from *Statistisches Programmieren mit R* by Daniel Obszelka, and Andreas Baierl.
 
-- Data transformation
-
-- Importing data
-
-- Programming
+[Open Statistisches Programmieren mit R →](statistisches-programmieren/index.html)

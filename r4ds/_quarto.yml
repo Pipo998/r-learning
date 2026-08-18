@@ -1,0 +1,114 @@
+project:
+  type: website
+  output-dir: ../_site/r4ds
+
+website:
+  title: "R Learning"
+
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: visualize.qmd
+        text: Visualization
+      - href: transform.qmd
+        text: Transformation
+      - href: import.qmd
+        text: Import
+      - href: program.qmd
+        text: Program
+      
+
+  sidebar:
+    style: docked
+    search: true
+    contents:
+      - href: index.qmd
+        text: Home
+
+      - section: "Data visualization"
+        href: visualize.qmd
+        contents:
+          - href: Visualize/exploratory-data-analysis.qmd
+            text: Exploratory Data Analysis
+          
+          - href: Visualize/communication.qmd
+            text: Communication
+          
+          - href: Visualize/facets.qmd
+            text: Facets
+
+          - href: Visualize/statistical-transformation.qmd
+            text: Statistical Transformation
+
+          - href: Visualize/position-adjustment.qmd
+            text: Position Adjustment
+
+          - href: Visualize/the-layered-grammar-of-graphics.qmd
+            text: The Layered Grammar of Graphics
+            
+        
+      - section: "Data transformation"
+        href: transform.qmd
+        contents:
+          - href: Transform/logical-vectors.qmd
+            text: Logical Vectors
+            
+          - href: Transform/numbers.qmd
+            text: Numbers
+            
+          - href: Transform/strings.qmd
+            text: Strings
+            
+          - href: Transform/regular-expressions.qmd
+            text: Regular Expressions
+            
+          - href: Transform/factors.qmd
+            text: Factors
+            
+          - href: Transform/dates-and-times.qmd
+            text: Date and times
+            
+          - href: Transform/missing-values.qmd
+            text: Missing values
+          
+          - href: Transform/joins.qmd
+            text: Joins
+            
+            
+      - section: "Import"
+        href: import.qmd
+        contents:
+          - href: Import/spreadsheets.qmd
+            text: Spreadsheets
+            
+          - href: Import/databases.qmd
+            text: Databases
+            
+          - href: Import/arrow.qmd
+            text: Arrow
+            
+          - href: Import/hierarchical-data.qmd
+            text: Hierarchical Data
+            
+          - href: Import/web-scraping.qmd
+            text: Web scraping
+            
+            
+      - section: "Program"
+        href: program.qmd
+        contents:
+          - href: Program/functions.qmd
+            text: Functions
+            
+          - href: Program/iteration.qmd
+            text: Iteration
+            
+          - href: Program/base-r.qmd
+            text: Base R
+            
+            
+format:
+  html:
+    theme: darkly
+    toc: true

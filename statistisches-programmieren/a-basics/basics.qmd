@@ -1,0 +1,807 @@
+---
+title: "Basics"
+format: html
+---
+
+::: callout-important
+Always write and comment code in such a way that it is clear and that, even five years from now, you can quickly understand what your code does, how and why it works, and how to use it correctly.
+:::
+
+### 2.3 Comments and assignments - "\#", "\<-"
+
+```{r}
+#| label: Assignemnt types
+
+# assignment types
+
+# left assignment - recommended
+a <- 2 # Defining parameter (comments next to code allowed!)
+a
+
+# right assignment - not recommended
+2 -> a
+a
+
+# assignment via "=" - unususal in R
+a = 2
+a
+```
+
+### 2.4 R as calculator
+
+| Operator | Meaning        |
+|:--------:|----------------|
+|   `+`    | Addition       |
+|   `-`    | Subtraction    |
+|   `*`    | Multiplication |
+|   `/`    | Division       |
+|   `^`    | Power          |
+| `srqt()` | Square root    |
+
+: Arithmetic operations
+
+```{r}
+#| label: Arithmetic operations
+
+# arithmetic operations
+# power
+3 ^ 2
+3 ^ 3
+
+# square root
+sqrt(9)
+# 3rd square root
+27 ^ (1 / 3)
+
+# pay attention to brackets
+9 ^ (1 / 2)
+# not same as:
+9 ^ 1 / 2
+
+# ex: golden ratio
+gamma <- (sqrt(5) - 1) / 2
+gamma
+
+```
+
+### 2.5 Useful shortcuts
+
+| Shortcut | Function |
+|:--------------------------------------|:--------------------------------|
+| `CTRL+L` | Clears the R console. |
+| `CTRL+TAB` | Switches to the next window (e.g., from the console to the script window). |
+| `CTRL+A` | Selects all code in the script window. |
+| `CTRL+R` | Runs the selected code or the current line in the R console (`CTRL+ENTER` in RStudio). |
+| `ARROW KEYS` | Navigate to the previous (`↑`) or next (`↓`) line of code in the R console. |
+| `ESC` | Cancels the current command. |
+
+: Useful Keyboard Shortcuts for the R Console
+
+### 2.7 Installing and loading packages
+
+```         
+Installing and loading packages
+
+# install package
+install.packages("pkg_name") - once
+
+# load package
+library(pkg_name) - done every R session
+```
+
+#### 2.8.3 Exercises
+
+```{r}
+#| label: 2.8.3 Exercises
+
+# Ex1: BMI = kg / m^2; Person: 65kg, 1.76m 
+# a) create variables
+kg <- 65
+m <- 1.76
+m2 <- m^2
+# b) compute BMI
+bmi <- kg / m2
+bmi
+
+# Ex2: Closed form fibonacci sequence
+n <- 8:10
+x <- 1/5
+y <- ((1 + sqrt(5)) / 2)^n
+z <- ((1 - sqrt(5)) / 2)^n
+
+cf_fib <- x * (y - z)
+cf_fib
+```
+
+## 3. Vectors and Logical Queries
+
+### 3.1 Generating vectors
+
+#### 3.1.1 Concatenating Elements into Vectors – c()
+
+| Index   | 1   | 2   | 3   | 4   | 5   | 6   |
+|:--------|:----|:----|:----|:----|:----|:----|
+| Element | 4   | 7   | 6   | 2   | 3   | 5   |
+
+: Tbl showing shuffled deck of cards
+
+```{r}
+#| label: Concatenating elements into vector
+
+# Concatenating elements into vector
+stack <- c(4, 7, 6, 2, 3, 5) # can combine arbitrary number of elmts into vec
+stack
+```
+
+#### 3.1.2 Indexing and length of vectors - length()
+
+In a vector, R starts indexing elements with 1 - last elements has index `length(vec)`:
+
+```{r}
+#| label: indexing and length of vector
+
+# indexing and length of vector
+length(stack)
+
+# can access the indexes with seq_along; See ?seq_along
+# seq_along(stack)[1]
+
+```
+
+#### 3.1.3 Simple sequences - ":"
+
+Simple sequences with step size 1 - computed by `:`:
+
+```{r}
+#| label: Simple sequences
+
+# Simple sequences
+1:6
+
+# other way around
+6:1
+
+# negative numbers
+-2:3
+
+-(2:3)
+
+# works with decimal numbers
+1.5:6.5
+
+# incomplet seq
+1:4.5
+
+# Can generate index vector for stack this way
+1:length(stack) # see ?seq_along
+```
+
+### 3.2 Selecting elements: subsetting - "\[ \]"
+
+Use subsetting via `[ ]` to access elements of vectors. Two methods: + Subsetting via indices (3.2.1) + Subsetting via boolean values (3.2.2)
+
+#### 3.2.1 Subsetting via indices - "-"
+
+```{r}
+#| label: Subsetting via indices
+
+# Subsetting via indices
+stack
+# top card
+stack[1]
+# second and fourth card
+stack[c(2, 4)]
+# first and last card
+stack[c(1, length(stack))] # use length() for flexibility of code
+
+# subsetting created a new vector
+stack[3:5] # gets new indices
+
+# assinging elements to temp
+temp <- stack[3:5]
+temp # "temporary"
+
+# accessing first card in temp:
+temp[1]
+stack[3:5][1] # nested alternative
+
+# alternatively: caching indices
+ind <- 3:5
+stack[ind]
+```
+
+What happenns if we try to access non-existing elements?
+
+```{r}
+#| label: Accessing non-existing elements
+
+# Accessing non-existing elements
+stack[c(2, 9, 2)] # NA (Not Available) appear
+```
+
+Omitting specific elements:
+
+```{r}
+#| label: Omitting specific elements
+
+# Omitting specific elements via "-"
+# selecting all elements except specified ones
+stack[-c(3:5)]
+stack[-c(3:5, 1)]
+```
+
+Dealing the cards equally:
+
+```{r}
+#| label: dealing cards
+
+# Player 2 receives every second card
+ind <- c(1, 3, 5)
+
+hand1 <- stack[ind]
+hand1
+
+hand2 <- stack[-ind]
+hand2
+```
+
+3.3 presents approach that is appliable to all lengths of vectors.
+
+#### 3.2.2 Subsetting with Boolean Values
+
+```{r}
+#| label: Subsetting with boolean values
+
+# Subsetting with boolean values
+stack
+
+# select alternating
+bool1 <- c(TRUE, FALSE, TRUE, FALSE, TRUE, FALSE)
+bool1
+
+hand1 <- stack[bool1]
+hand1
+
+# Can reverse operation for second player via negation
+hand2 <- stack[!bool1]
+hand2
+
+
+```
+
+### 3.3 Recycling
+
+```{r}
+#| label: Recycling
+
+# Selecting cards alternatung via recycling
+stack
+
+# subsetting vec recycled till reaching length of stack
+stack[c(TRUE, FALSE)] # 6 divisible by 2, thus "complete recycling"
+
+# incomplete recycling - subsetting vector cuts off stack
+stack[c(TRUE, FALSE, FALSE, FALSE)] #  4 no divisor of 6
+# "4" 7 6 2 "3" 5
+```
+
+Recycling also common in arithmetic operations:
+
+```{r}
+#| label: Recycling in arithmetic operations
+
+# Recycling in arithmetic operations
+y <- 1:5 * c(-1, 1)
+y
+```
+
+### 3.4 Logical Conditions and Operators
+
+#### 3.4.1 Comparing Elements – “==”, “!”, “!=”, “\<”, “\<=”, “\>”, “\>=”
+
+|  Operator   | Meaning                                  |
+|:-----------:|------------------------------------------|
+|    `==`     | equal to                                 |
+|     `!`     | not (negates a logical value)            |
+|    `!=`     | not equal to                             |
+| `<` or `<=` | less than or less than or equal to       |
+| `>` or `>=` | greater than or greater than or equal to |
+
+: Logical operators for comparisons and negation
+
+```{r}
+#| label: Logical conditions
+
+stack
+
+# elements equal 5
+stack == 5
+# elements greater than 5
+stack > 5
+
+# elements not equal 5
+stack != 5
+
+# selecting all cards at least 5
+stack[stack >= 5] # original order of cards still retained
+
+stack[! (stack < 5)]
+
+stack[! stack < 5] # "<" takes priority
+
+# logical conditions no element fulfills returns empty vec
+stack[stack < 0]
+
+length(stack[stack < 0]) # empty vec has lenght = 0
+
+length(stack[stack < 0]) == 0 # checking if indeed empty
+```
+
+#### 3.4.2 Linking Conditions – “&”, “\|”
+
+| Operator | Meaning       |
+|:--------:|---------------|
+|   `&`    | AND operation |
+|   `\|`   | OR operation  |
+
+: Operators for combining logical values
+
+`AND operation` equals `TRUE` if both boolean values are `TRUE`. `OR operation` equals `TRUE` if at least one of the boolean values return `TRUE`.
+
+```{r}
+#| label: Linking Conditions - "&", "|"
+
+# AND operations
+TRUE & TRUE # TRUE
+
+TRUE & FALSE # FALSE
+
+FALSE & FALSE # FALSE
+
+# OR operations
+TRUE | TRUE # TRUE
+
+TRUE | FALSE # TRUE
+
+FALSE | FALSE # FALSE
+
+# Ex: drawing cards greater than 2 and less or equal to 5
+stack > 2
+stack <= 5
+stack > 2 & stack <= 5 
+
+stack[stack > 2 & stack <= 5]
+
+# Ex: drawing cards less than 4 or greater than 5
+stack < 4
+stack > 5
+temp <- stack < 4 | stack > 5
+
+stack[temp]
+
+```
+
+### 3.5 Calculating with Boolean Values
+
+#### 3.5.1 Absolute and Relative Frequencies – sum(), mean()
+
+```{r}
+#| label: Example 3.5.1 absolute and rel freq
+
+# Ex: how many cards with at least val 5
+# cards p1
+hand1 >= 5
+sum(hand1 >= 5)
+
+# cards p2
+hand2 >= 5
+sum(hand2 >= 5)
+```
+
+::: callout-important
+R encodes `TRUE` as `1` and `FALSE` as `0` - thus, can use `sum()` to compute the number of `TRUE`.
+:::
+
+This also applies to other arithemtic operations:
+
+```{r}
+#| label: Encoding of boolean values
+
+# 1 + 0 + 1
+TRUE + FALSE + TRUE
+# T + F + T; alternatively
+
+# 2 * 1 + 1 * 0
+2 * TRUE + 1 * FALSE
+
+# Proportion of TRUE values - use mean()
+mean(stack >= 5) # 50% of cards greater or equal to 5
+
+# Ex: Did p1 receive more cards greater than or equal to 5 than p2?
+sum(hand1 >= 5) > sum(hand2 >= 5) # FALSE
+```
+
+#### 3.5.2 Determining Index Values - which()
+
+Used when interested in specific indices fulfilling some conditions. So far:
+
+```         
+(1:length(vec))[bool] # reveals at what index TRUE lies
+```
+
+```{r}
+#| label: Det ind vals - which()
+
+stack
+
+# retrieve indices
+1:length(stack)
+stack == 7 
+
+index <- (1:length(stack))[stack == 7]
+index # 7 is at position 2
+
+# alternatively, and more conveniently
+which(stack == 7)
+
+# Ex: positions with cards equal or greater than 5
+which(stack >= 5)
+
+# Ex: position of first card with val 5 or greater
+ind1 <- which(stack >= 5)[1]
+ind1
+stack[ind1] # value of this card
+```
+
+What happens when calling `which()` on non-existing indices:
+
+```{r}
+#| label: which() on non-ex indices
+
+# no element < 0 results in empty vec
+which(stack < 0)
+length(which(stack < 0))
+length(which(stack < 0)) == 0
+
+# trying to access non-ex elements
+which(stack < 0)[1] # NA
+stack[which(stack < 0)[1]] # NA
+
+```
+
+### 3.6 Replacing and Swapping Values
+
+Elements of a vector can be replaced by selecting positions and assigning new values:
+
+`vector[position] <- replacement`
+
+```{r}
+#| label: Example 3.6.1 replacing values
+
+x <- c(2, -5, 3, 4, -1)
+
+# double all positive values
+x[x > 0] <- x[x > 0] * 2
+x
+
+# replace all negative values by 0
+x[x < 0] <- 0
+x
+```
+
+::: callout-important
+When assigning a single value to multiple positions, **recycling** takes place.
+
+For example, `0` is recycled to the length of `x[x < 0]`.
+:::
+
+#### 3.6.1 Swapping Values
+
+```{r}
+#| label: Example 3.6.2 swapping values
+
+stack <- c(4, 7, 6, 2, 3, 5)
+
+# swap first and last card - wrong!
+stack_new <- stack
+stack_new[1] <- stack_new[length(stack_new)]
+stack_new[length(stack_new)] <- stack_new[1]
+stack_new
+```
+
+The first value is overwritten before it can be assigned to the last position.
+
+We can instead access the values of the original `stack`:
+
+```{r}
+#| label: Example 3.6.3 swapping values correctly
+
+stack_new <- stack
+
+stack_new[1] <- stack[length(stack)]
+stack_new[length(stack_new)] <- stack[1]
+
+stack_new
+```
+
+Alternatively, use a temporary object:
+
+```{r}
+#| label: Example 3.6.4 swapping with temporary object
+
+stack_new <- stack
+
+temp <- stack_new[1]
+stack_new[1] <- stack_new[length(stack_new)]
+stack_new[length(stack_new)] <- temp
+
+stack_new
+```
+
+::: callout-important
+When values are overwritten sequentially, store values that are still needed in a **temporary object**.
+:::
+
+### 3.7 Good Programming Practice
+
+#### 3.7.1 Meaningful Object Names and Special Characters
+
+Object names should be **short and meaningful**.
+
+Examples of meaningful names:
+
+```
+stack
+mixed_stack
+hand_player1
+```
+
+Avoid names such as:
+
+``` text
+x
+1.hand
+hand 1
+kartenstoß
+blätter1
+s
+```
+
+General rules:
+
+- use short and descriptive names
+- object names cannot start with a number
+- avoid spaces and special characters
+- avoid umlauts (`ä`, `ö`, `ü`) and `ß`
+- use nouns for objects
+- prefer lowercase names
+- `.` and `_` can be used to separate words
+
+::: callout-note
+R is **case-sensitive**. Thus, `stack` and `Stack` refer to different objects.
+:::
+
+#### 3.7.2 General and Automated Programming
+
+Code should be written such that it still works when the underlying data changes.
+
+```{r}
+#| label: Example 3.7.1 general programming
+
+stack <- c(4, 7, 6, 2, 3, 5)
+
+# last card - expandable
+stack[6]
+
+# last card - general
+stack[length(stack)]
+
+# every second card - expandable
+stack[c(1, 3, 5)]
+
+# every second card - general
+stack[c(TRUE, FALSE)]
+```
+
+If the stack is extended:
+
+```{r}
+stack <- c(stack, 9, 8)
+stack
+```
+
+the manually specified code no longer works correctly:
+
+```{r}
+stack[6]
+stack[c(1, 3, 5)]
+```
+
+while the general code automatically adapts:
+
+```{r}
+stack[length(stack)]
+stack[c(TRUE, FALSE)]
+```
+
+::: callout-important
+Program as generally and automatically as possible. Let R determine information such as vector lengths or positions instead of **hard-coding** them.
+:::
+
+### 3.8 Exercises
+
+#### Ex 1: Counting Boolean Values
+
+```{r}
+stack <- c(4, 7, 6, 2, 3, 5)
+
+# number of cards with value >= 4
+sum(stack >= 4)
+
+# alternatively
+length(stack[stack >= 4])
+
+# using which()
+length(which(stack >= 4))
+```
+
+`sum(stack >= 4)` works because R encodes `TRUE` as `1` and `FALSE` as `0`.
+
+Using `which()` is unnecessary when we only want to select or count elements based on a condition.
+
+#### Ex 2: Vector Operations
+
+```{r}
+x <- (1:6) * c(-1, 1)
+x
+```
+
+`c(-1, 1)` is recycled:
+
+``` text
+1:6       1  2  3  4  5  6
+c(-1, 1) -1  1 -1  1 -1  1
+           ↓  ↓  ↓  ↓  ↓  ↓
+x         -1  2 -3  4 -5  6
+```
+
+Replace all non-positive values by their negative value:
+
+```{r}
+x[x <= 0] <- -x[x <= 0]
+x
+```
+
+Multiply using recycled Boolean values:
+
+```{r}
+x <- x * c(TRUE, FALSE)
+x
+```
+
+Since `TRUE = 1` and `FALSE = 0`, every second value becomes `0`.
+
+Select values different from `0` and smaller than `5`:
+
+```{r}
+x <- x[x != 0 & x < 5]
+x
+```
+
+Select elements using numerical indices:
+
+```{r}
+x <- x[c(0:3, length(x), 2, 1)]
+x
+```
+
+::: callout-note
+When indexing, `0` is ignored. Repeated indices select the corresponding element multiple times.
+:::
+
+#### Ex 3: Select All Elements Except the Last $k$
+
+```{r}
+#| label: Ex 3 select all except last k
+
+x <- 1:5
+x
+```
+
+Approach 1:
+
+```{r}
+# brackets needed due to operator precedence
+x[1:(length(x) - 2)]
+```
+
+Approach 2:
+
+```{r}
+# exclude last two positions
+x[-c(length(x) - 1, length(x))]
+```
+
+Generalizing to the last `k` elements:
+
+```{r}
+k <- 2
+
+# approach 1
+x[1:(length(x) - k)]
+
+# approach 2
+x[-((length(x) - k + 1):length(x))]
+```
+
+##### Function
+
+```{r}
+#| label: Ex 3 function
+
+omit_last_elmt <- function(vec, k) {
+  if (length(vec) >= k + 1) {
+    vec[1:(length(vec) - k)]
+  } else NA
+}
+
+omit_last_elmt(x, 2)
+```
+
+Alternatively, using `seq_len()`:
+
+```{r}
+omit_last_elmt <- function(vec, k) {
+  if (length(vec) >= k + 1) {
+    vec[seq_len(length(vec) - k)]
+  } else NA
+}
+
+omit_last_elmt(x, 2)
+```
+
+#### Ex 4: Logical Conditions
+
+```{r}
+age <- c(16, 18, 19, 24, 28, 32, 32, 45)
+
+# number of entries
+length(age)
+
+# percentage between 18 and 27
+mean(age >= 18 & age <= 27) * 100
+
+# younger than 20 or older than 30
+sum(age < 20 | age > 30)
+```
+
+#### Ex 5: Swapping Cards Between Two Players
+
+```{r}
+hand1 <- c(4, 6, 3)
+hand2 <- c(7, 2, 5)
+```
+
+This approach does **not** work:
+
+```{r}
+hand1[1] <- hand2[1]
+hand2[1] <- hand1[1]
+```
+
+`hand1[1]` is overwritten before its original value can be assigned to `hand2[1]`.
+
+Use a temporary object instead:
+
+```{r}
+hand1 <- c(4, 6, 3)
+hand2 <- c(7, 2, 5)
+
+temp <- hand1[1]
+
+hand1[1] <- hand2[1]
+hand2[1] <- temp
+
+hand1
+hand2
+```

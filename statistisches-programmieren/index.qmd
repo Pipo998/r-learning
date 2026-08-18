@@ -1,0 +1,5 @@
+---
+title: "Statistisches Programmieren mit R"
+---
+
+Notes and exercises for *Statistisches Programmieren mit R* by Daniel Obszelka and Andreas Baierl.

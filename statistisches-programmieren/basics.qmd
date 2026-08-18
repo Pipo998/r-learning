@@ -1,0 +1,15 @@
+---
+title: "A First Steps with R"
+format: html
+author: "Filip Kukic"
+editor: source
+---
+
+# Basics
+
+This section collects my notes and exercises for "A First Steps with R".
+
+## Chapter
+
+- [Basics](a-basics/basics.qmd)
+
