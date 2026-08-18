@@ -527,9 +527,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 3 × 3
       x y         z
   &lt;int&gt; &lt;chr&gt; &lt;dbl&gt;
-1     1 a     0.832
-2     2 b     0.504
-3     3 c     0.522</code></pre>
+1     1 a     0.638
+2     2 b     0.610
+3     3 c     0.598</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Selecting first row and second column</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>df[<span class="dv">1</span>, <span class="dv">2</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -555,8 +555,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 2 × 3
       x y         z
   &lt;int&gt; &lt;chr&gt; &lt;dbl&gt;
-1     2 b     0.504
-2     3 c     0.522</code></pre>
+1     2 b     0.610
+2     3 c     0.598</code></pre>
 </div>
 </div>
 <p>Base R <code>data.frame</code> (similar to tidyverse <code>tibble</code>- though some behavior makes life easier) - returns vector if df[, cols] selects single single column, returns data frame when selecting multiple columns.</p>
@@ -618,8 +618,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 2 × 3
       x y         z
   &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
-1     2 a     0.187
-2     3 b     0.896</code></pre>
+1     2 a     0.950
+2     3 b     0.975</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># equivalent to base R:</span></span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -628,8 +628,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 2 × 3
       x y         z
   &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
-1     2 a     0.187
-2     3 b     0.896</code></pre>
+1     2 a     0.950
+2     3 b     0.975</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># alternatively use which() - dropping the missing values</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -638,8 +638,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 2 × 3
       x y         z
   &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
-1     2 a     0.187
-2     3 b     0.896</code></pre>
+1     2 a     0.950
+2     3 b     0.975</code></pre>
 </div>
 </div>
 <ul>
@@ -654,11 +654,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 5 × 3
       x y         z
   &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
-1     1 c     0.546
-2     1 d     0.921
-3     2 a     0.187
-4     3 b     0.896
-5    NA e     0.637</code></pre>
+1     1 c     0.117
+2     1 d     0.841
+3     2 a     0.950
+4     3 b     0.975
+5    NA e     0.220</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># equivalent to base R:</span></span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -667,11 +667,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 5 × 3
       x y         z
   &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
-1     1 c     0.546
-2     1 d     0.921
-3     2 a     0.187
-4     3 b     0.896
-5    NA e     0.637</code></pre>
+1     1 c     0.117
+2     1 d     0.841
+3     2 a     0.950
+4     3 b     0.975
+5    NA e     0.220</code></pre>
 </div>
 </div>
 <ul>
@@ -713,8 +713,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 2 × 2
   y         z
   &lt;chr&gt; &lt;dbl&gt;
-1 a     0.187
-2 b     0.896</code></pre>
+1 a     0.950
+2 b     0.975</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Base R alternative:</span></span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
@@ -723,8 +723,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 2 × 2
   y         z
   &lt;chr&gt; &lt;dbl&gt;
-1 a     0.187
-2 b     0.896</code></pre>
+1 a     0.950
+2 b     0.975</code></pre>
 </div>
 </div>
 </section>
@@ -740,11 +740,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>vec <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="at">size =</span> <span class="dv">13</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>vec</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] 10  2  9  6  7 10  5  1  9  5  5  7  7</code></pre>
+<pre><code> [1]  4 10  1  1  2  3  8  1  3  7  6  5  7</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">even_elmts</span>(<span class="at">vec =</span> vec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1]  2  6 10  1  5  7</code></pre>
+<pre><code>[1] 10  1  3  1  7  5</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># b. every element except the last one</span></span>
 <span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>all_elmts_exlo <span class="ot">&lt;-</span> <span class="cf">function</span>(vec) {</span>
@@ -753,11 +753,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>vec</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] 10  2  9  6  7 10  5  1  9  5  5  7  7</code></pre>
+<pre><code> [1]  4 10  1  1  2  3  8  1  3  7  6  5  7</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all_elmts_exlo</span>(vec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] 10  2  9  6  7 10  5  1  9  5  5  7</code></pre>
+<pre><code> [1]  4 10  1  1  2  3  8  1  3  7  6  5</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># c. only even values (and no missing values)</span></span>
 <span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>even_vals <span class="ot">&lt;-</span> <span class="cf">function</span>(vec) {</span>
@@ -767,11 +767,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>vec <span class="ot">&lt;-</span> <span class="fu">c</span>(vec, <span class="cn">NA</span>)</span>
 <span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>vec</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] 10  2  9  6  7 10  5  1  9  5  5  7  7 NA</code></pre>
+<pre><code> [1]  4 10  1  1  2  3  8  1  3  7  6  5  7 NA</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">even_vals</span>(vec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 10  2  6 10</code></pre>
+<pre><code>[1]  4 10  2  8  6</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ex2: Read ?which; Why is not x[-which(x&gt;0)] same as x[x &lt;= 0]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
